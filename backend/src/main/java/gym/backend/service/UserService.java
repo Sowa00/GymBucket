@@ -5,20 +5,29 @@ import gym.backend.dto.UserRegistrationDTO;
 import gym.backend.exception.DuplicateEmailException;
 import gym.backend.model.User;
 import gym.backend.repository.UserRepository;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import io.jsonwebtoken.security.Keys;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import org.slf4j.Logger;
 
 
 @Service
 public class UserService {
 
+
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     private final UserRepository userRepository;
     PasswordEncoder passwordEncoder;
+    @Value("${jwt.expirationMs}")
+    private long jwtExpirationMs;
 
 
     @Autowired
