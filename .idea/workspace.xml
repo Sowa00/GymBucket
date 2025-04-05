@@ -4,10 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="22df7a93-91d8-44f0-a022-a40f4c02eca9" name="Changes" comment="user classes">
+    <list default="true" id="22df7a93-91d8-44f0-a022-a40f4c02eca9" name="Changes" comment="jpa">
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/gym/backend/config/SecurityConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/gym/backend/dto/UserLoginDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/gym/backend/dto/UserRegistrationDTO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/main/java/gym/backend/repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/gym/backend/repository/UserRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/gym/backend/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/gym/backend/service/UserService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -17,8 +20,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Class" />
         <option value="Interface" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -130,7 +133,7 @@
       <workItem from="1743603598478" duration="690000" />
       <workItem from="1743608142992" duration="745000" />
       <workItem from="1743763526354" duration="12000" />
-      <workItem from="1743872876109" duration="1830000" />
+      <workItem from="1743872876109" duration="2444000" />
     </task>
     <task id="LOCAL-00001" summary="proj">
       <option name="closed" value="true" />
@@ -164,7 +167,15 @@
       <option name="project" value="LOCAL" />
       <updated>1743873504764</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="jpa">
+      <option name="closed" value="true" />
+      <created>1743890478313</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1743890478313</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -196,6 +207,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="proj" />
     <MESSAGE value="user classes" />
-    <option name="LAST_COMMIT_MESSAGE" value="user classes" />
+    <MESSAGE value="jpa" />
+    <option name="LAST_COMMIT_MESSAGE" value="jpa" />
   </component>
 </project>
