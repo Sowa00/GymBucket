@@ -4,14 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="22df7a93-91d8-44f0-a022-a40f4c02eca9" name="Changes" comment="proj">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/resources/application.properties" afterDir="false" />
-    </list>
+    <list default="true" id="22df7a93-91d8-44f0-a022-a40f4c02eca9" name="Changes" comment="user classes" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
@@ -121,6 +125,7 @@
       <workItem from="1743603598478" duration="690000" />
       <workItem from="1743608142992" duration="745000" />
       <workItem from="1743763526354" duration="12000" />
+      <workItem from="1743872876109" duration="488000" />
     </task>
     <task id="LOCAL-00001" summary="proj">
       <option name="closed" value="true" />
@@ -138,7 +143,15 @@
       <option name="project" value="LOCAL" />
       <updated>1743608493179</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="user classes">
+      <option name="closed" value="true" />
+      <created>1743873166855</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1743873166855</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -149,7 +162,19 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="dev_js" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
           </value>
         </entry>
       </map>
@@ -157,6 +182,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="proj" />
-    <option name="LAST_COMMIT_MESSAGE" value="proj" />
+    <MESSAGE value="user classes" />
+    <option name="LAST_COMMIT_MESSAGE" value="user classes" />
   </component>
 </project>
