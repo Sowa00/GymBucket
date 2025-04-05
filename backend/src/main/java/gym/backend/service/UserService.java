@@ -8,6 +8,10 @@ import gym.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import io.jsonwebtoken.security.Keys;
+
+import javax.crypto.SecretKey;
+import java.util.Date;
 
 
 @Service
@@ -61,4 +65,20 @@ public class UserService {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
     }
+
+    public String generateJwtToken(String username) {
+        SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+
+        String token = Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
+                .signWith(key)
+                .compact();
+
+        logger.info("Generated JWT Token: {}", token);
+
+        return token;
+    }
+
 }
