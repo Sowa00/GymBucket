@@ -33,5 +33,11 @@ public class User {
     @Column(nullable = false)
     private UserRole userRole;
 
-
+    public User(String email, String password, String firstName, String lastName, UserRole userRole) {
+        this.email = email;
+        this.password = password;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.userRole = userRole;
+    }
 }
