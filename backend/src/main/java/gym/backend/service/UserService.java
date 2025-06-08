@@ -40,7 +40,7 @@ public class UserService {
 
         String encodedPassword = passwordEncoder.encode(registrationDTO.getPassword());
 
-        User user = new User(registrationDTO.getEmail(), encodedPassword, registrationDTO.getFirstName(), registrationDTO.getLastName());
+        User user = new User(registrationDTO.getEmail(), encodedPassword, registrationDTO.getFirstName(), registrationDTO.getLastName(), registrationDTO.getUserRole());
 
         userRepository.save(user);
     }

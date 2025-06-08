@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Collections;
 
 @RestController
-@RequestMapping("/gymb")
+@RequestMapping("/auth")
 public class UserController {
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
