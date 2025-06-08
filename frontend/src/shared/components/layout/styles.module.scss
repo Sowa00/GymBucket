@@ -1,0 +1,572 @@
+// Variables
+$primary-purple: #8b5cf6;
+$primary-pink: #ec4899;
+$dark-bg: #0f172a;
+$dark-card: rgba(255, 255, 255, 0.1);
+$border-color: rgba(139, 92, 246, 0.3);
+$text-primary: #ffffff;
+$text-secondary: #cbd5e1;
+$text-muted: #94a3b8;
+$success-color: #10b981;
+$warning-color: #f59e0b;
+$error-color: #ef4444;
+
+// Mixins
+@mixin gradient-bg($from, $to) {
+  background: linear-gradient(135deg, $from 0%, $to 100%);
+}
+
+@mixin glassmorphism {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+@mixin card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+  }
+}
+
+@mixin button-primary {
+  @include gradient-bg($primary-purple, $primary-pink);
+  color: $text-primary;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px rgba(139, 92, 246, 0.4);
+  }
+}
+
+// Reset and base styles
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  @include gradient-bg($dark-bg, #4c1d95);
+  min-height: 100vh;
+  color: $text-primary;
+}
+
+// Dashboard container
+.dashboard {
+  display: flex;
+  min-height: 100vh;
+}
+
+// Sidebar styles
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 280px;
+  height: 100vh;
+  @include glassmorphism;
+  border-right: 1px solid $border-color;
+  z-index: 10;
+  padding: 2rem;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 3rem;
+
+    &-logo {
+      width: 48px;
+      height: 48px;
+      @include gradient-bg($primary-purple, $primary-pink);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: $text-primary;
+    }
+
+    &-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: $text-primary;
+    }
+  }
+
+  &__nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: transparent;
+    border: none;
+    color: $text-secondary;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+    text-align: left;
+
+    &--active {
+      @include gradient-bg($primary-purple, $primary-pink);
+      color: $text-primary;
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    }
+
+    &:hover:not(&--active) {
+      background: rgba(255, 255, 255, 0.1);
+      color: $text-primary;
+    }
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  &__logout {
+    position: absolute;
+    bottom: 2rem;
+    left: 2rem;
+    right: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: transparent;
+    border: none;
+    color: $text-secondary;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: $text-primary;
+    }
+  }
+}
+
+// Main content
+.main-content {
+  margin-left: 280px;
+  padding: 2rem;
+  flex: 1;
+}
+
+// Header
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+
+  &__title {
+    h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      color: $text-secondary;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  &__search {
+    position: relative;
+
+    input {
+      @include glassmorphism;
+      border-radius: 12px;
+      padding: 12px 16px 12px 44px;
+      color: $text-primary;
+      background: rgba(255, 255, 255, 0.1);
+
+      &::placeholder {
+        color: $text-muted;
+      }
+
+      &:focus {
+        outline: none;
+        border-color: $primary-purple;
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+      }
+    }
+
+    svg {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: $text-muted;
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  &__notification {
+    position: relative;
+    @include glassmorphism;
+    border-radius: 12px;
+    padding: 12px;
+    color: $text-primary;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      width: 12px;
+      height: 12px;
+      background: $error-color;
+      border-radius: 50%;
+    }
+  }
+
+  &__cta {
+    @include button-primary;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+// Stats grid
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+
+  &__card {
+    @include glassmorphism;
+    @include card-hover;
+    border-radius: 16px;
+    padding: 1.5rem;
+
+    &-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    &-icon {
+      width: 40px;
+      height: 40px;
+      @include gradient-bg($primary-purple, $primary-pink);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: $text-primary;
+    }
+
+    &-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    &-label {
+      color: $text-secondary;
+      text-transform: capitalize;
+    }
+  }
+}
+
+// Content grid
+.content-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Schedule card
+.schedule {
+  @include glassmorphism;
+  border-radius: 16px;
+  padding: 1.5rem;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+
+    h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    button {
+      background: none;
+      border: none;
+      color: $primary-purple;
+      font-weight: 500;
+      cursor: pointer;
+
+      &:hover {
+        color: $primary-pink;
+      }
+    }
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    @include glassmorphism;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    @include card-hover;
+
+    &-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    &-avatar {
+      width: 48px;
+      height: 48px;
+      @include gradient-bg($primary-purple, $primary-pink);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: $text-primary;
+      font-weight: 700;
+    }
+
+    &-info h4 {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    &-info p {
+      color: $text-secondary;
+      font-size: 0.875rem;
+    }
+
+    &-right {
+      text-align: right;
+
+      p {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+      }
+
+      button {
+        background: none;
+        border: none;
+        color: $primary-purple;
+        font-size: 0.875rem;
+        cursor: pointer;
+
+        &:hover {
+          color: $primary-pink;
+        }
+      }
+    }
+  }
+
+  &__add {
+    width: 100%;
+    padding: 1rem;
+    border: 2px dashed rgba(139, 92, 246, 0.5);
+    background: transparent;
+    border-radius: 12px;
+    color: $primary-purple;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      border-color: $primary-pink;
+      color: $primary-pink;
+    }
+  }
+}
+
+// Activity card
+.activity {
+  @include glassmorphism;
+  border-radius: 16px;
+  padding: 1.5rem;
+
+  &__header {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+  }
+
+  &__item {
+    padding: 1rem;
+    @include glassmorphism;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+
+    &-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+
+    &-avatar {
+      width: 32px;
+      height: 32px;
+      @include gradient-bg($success-color, #06b6d4);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: $text-primary;
+      font-weight: 700;
+      font-size: 0.75rem;
+    }
+
+    &-info h4 {
+      font-weight: 500;
+      font-size: 0.875rem;
+    }
+
+    &-info p {
+      color: $text-muted;
+      font-size: 0.75rem;
+    }
+
+    &-progress {
+      color: $success-color;
+      font-weight: 500;
+      font-size: 0.875rem;
+    }
+  }
+
+  &__cta {
+    @include button-primary;
+    width: 100%;
+    margin-top: 1rem;
+  }
+}
+
+// Quick actions
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+
+  &__card {
+    padding: 1.5rem;
+    border-radius: 16px;
+    color: $text-primary;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    text-align: left;
+
+    &:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    &--workout {
+      @include gradient-bg(#3b82f6, #06b6d4);
+    }
+
+    &--nutrition {
+      @include gradient-bg($success-color, #059669);
+    }
+
+    &--schedule {
+      @include gradient-bg($primary-purple, $primary-pink);
+    }
+
+    svg {
+      width: 32px;
+      height: 32px;
+      margin-bottom: 0.75rem;
+    }
+
+    h3 {
+      font-size: 1.125rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      opacity: 0.9;
+      font-size: 0.875rem;
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+
+    &--open {
+      transform: translateX(0);
+    }
+  }
+
+  .main-content {
+    margin-left: 0;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+
+    &__actions {
+      justify-content: space-between;
+    }
+  }
+
+  .stats {
+    grid-template-columns: 1fr;
+  }
+
+  .quick-actions {
+    grid-template-columns: 1fr;
+  }
+}

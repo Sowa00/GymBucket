@@ -4,24 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="22df7a93-91d8-44f0-a022-a40f4c02eca9" name="Changes" comment="backend login register logic, service, repository, model, dto">
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/app.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/app.component.html" afterDir="false" />
-    </list>
-    <list id="e78f4ab6-9170-40da-87c2-298d1942a7f0" name="nocommit" comment="">
+    <list default="true" id="3f03eb5f-264f-401f-abbe-9daae1732b08" name="Changes" comment="New, better front">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
+    <list id="f15d9c41-f629-4dfa-a59e-a4b80fcbce05" name="Changes by kanio" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="Interface" />
-        <option value="Class" />
-      </list>
-    </option>
+  <component name="FormatOnSaveOptions">
+    <option name="myRunOnSave" value="true" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
@@ -31,33 +24,45 @@
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory">{
-  &quot;lastFilter&quot;: {
-    &quot;state&quot;: &quot;OPEN&quot;,
-    &quot;assignee&quot;: &quot;Sowa00&quot;
-  }
-}</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/Sowa00/GymBucket.git&quot;,
-    &quot;accountId&quot;: &quot;f63a83dd-1156-47bd-8081-3e977f72550c&quot;
-  }
-}</component>
-  <component name="MavenImportPreferences">
-    <option name="generalSettings">
-      <MavenGeneralSettings>
-        <option name="mavenHomeTypeForPersistence" value="WRAPPER" />
-      </MavenGeneralSettings>
-    </option>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="OptimizeOnSaveOptions">
+    <option name="myRunOnSave" value="true" />
   </component>
   <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 1
 }</component>
-  <component name="ProjectId" id="2vB1LHXA1ZgrPmFs7gEEhv46Qnk" />
+  <component name="ProjectId" id="2y139ps6cWEUmiXiCjJHNQBbweO" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;code.cleanup.on.save&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;new-better-front-react&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/ckami/Documents/GymBucket/frontend/src/shared/components/layout&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;npm.start.executor&quot;: &quot;Run&quot;,
+    &quot;prettierjs.PrettierConfiguration.Package&quot;: &quot;C:\\Users\\ckami\\Documents\\GymBucket\\frontend\\node_modules\\prettier&quot;,
+    &quot;rearrange.code.on.save&quot;: &quot;true&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settings.ide.settings.web.browsers&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Users\\ckami\\Documents\\GymBucket\\frontend\\node_modules\\typescript\\lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
     &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
@@ -99,101 +104,56 @@
       </method>
     </configuration>
     <configuration name="start" type="js.build_tools.npm" nameIsGenerated="true">
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\ckami\Documents\GymBucket\frontend\src\shared\components\layout" />
+      <recent name="C:\Users\ckami\Documents\GymBucket\frontend\src\pages\users" />
+      <recent name="C:\Users\ckami\Documents\GymBucket\frontend\src\pages\homepage" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\ckami\Documents\GymBucket\frontend\src\shared\components\layout" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="start" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
       <package-json value="$PROJECT_DIR$/frontend/package.json" />
-      <command value="start" />
+      <command value="run" />
+      <scripts>
+        <script value="start" />
+      </scripts>
       <node-interpreter value="project" />
       <envs />
       <method v="2" />
     </configuration>
-    <list>
-      <item itemvalue="npm.start" />
-      <item itemvalue="Spring Boot.BackendApplication" />
-    </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Spring Boot.BackendApplication" />
+        <item itemvalue="npm.start" />
       </list>
     </recent_temporary>
-  </component>
-  <component name="SharedIndexes">
-    <attachedChunks>
-      <set>
-        <option value="bundled-jdk-9823dce3aa75-28b599e66164-intellij.indexing.shared.core-IU-242.23726.103" />
-        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-IU-242.23726.103" />
-      </set>
-    </attachedChunks>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="22df7a93-91d8-44f0-a022-a40f4c02eca9" name="Changes" comment="" />
-      <changelist id="e78f4ab6-9170-40da-87c2-298d1942a7f0" name="nocommit" comment="" />
-      <created>1743603597445</created>
+      <changelist id="3f03eb5f-264f-401f-abbe-9daae1732b08" name="Changes" comment="" />
+      <created>1748988104404</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1743603597445</updated>
-      <workItem from="1743603598478" duration="690000" />
-      <workItem from="1743608142992" duration="745000" />
-      <workItem from="1743763526354" duration="12000" />
-      <workItem from="1743872876109" duration="3367000" />
+      <updated>1748988104404</updated>
+      <workItem from="1748988107897" duration="1784000" />
+      <workItem from="1748990038576" duration="5173000" />
+      <workItem from="1749160237508" duration="10423000" />
+      <workItem from="1749292354794" duration="433000" />
     </task>
-    <task id="LOCAL-00001" summary="proj">
+    <task id="LOCAL-00001" summary="New, better front">
       <option name="closed" value="true" />
-      <created>1743607907138</created>
+      <created>1749172179773</created>
       <option name="number" value="00001" />
       <option name="presentableId" value="LOCAL-00001" />
       <option name="project" value="LOCAL" />
-      <updated>1743607907138</updated>
+      <updated>1749172179773</updated>
     </task>
-    <task id="LOCAL-00002" summary="proj">
-      <option name="closed" value="true" />
-      <created>1743608493179</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1743608493179</updated>
-    </task>
-    <task id="LOCAL-00003" summary="user classes">
-      <option name="closed" value="true" />
-      <created>1743873166855</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1743873166855</updated>
-    </task>
-    <task id="LOCAL-00004" summary="user classes">
-      <option name="closed" value="true" />
-      <created>1743873504764</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1743873504764</updated>
-    </task>
-    <task id="LOCAL-00005" summary="jpa">
-      <option name="closed" value="true" />
-      <created>1743890478313</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1743890478313</updated>
-    </task>
-    <task id="LOCAL-00006" summary="backend login register logic, service, repository, model, dto">
-      <option name="closed" value="true" />
-      <created>1743891105379</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1743891105379</updated>
-    </task>
-    <task id="LOCAL-00007" summary="backend login register logic, service, repository, model, dto">
-      <option name="closed" value="true" />
-      <created>1743891388265</created>
-      <option name="number" value="00007" />
-      <option name="presentableId" value="LOCAL-00007" />
-      <option name="project" value="LOCAL" />
-      <updated>1743891388265</updated>
-    </task>
-    <option name="localTasksCounter" value="8" />
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -204,29 +164,18 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State>
-              <option name="FILTERS">
-                <map>
-                  <entry key="branch">
-                    <value>
-                      <list>
-                        <option value="dev_js" />
-                      </list>
-                    </value>
-                  </entry>
-                </map>
-              </option>
-            </State>
+            <State />
           </value>
         </entry>
       </map>
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="proj" />
-    <MESSAGE value="user classes" />
-    <MESSAGE value="jpa" />
-    <MESSAGE value="backend login register logic, service, repository, model, dto" />
-    <option name="LAST_COMMIT_MESSAGE" value="backend login register logic, service, repository, model, dto" />
+    <MESSAGE value="New, better front" />
+    <option name="LAST_COMMIT_MESSAGE" value="New, better front" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>
