@@ -5,13 +5,35 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3f03eb5f-264f-401f-abbe-9daae1732b08" name="Changes" comment="New, better front">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/gym/backend/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/gym/backend/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/gym/backend/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/gym/backend/service/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/login/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/login/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/login/styles.module.scss" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/login/styles.module.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/router.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/router.tsx" afterDir="false" />
     </list>
+    <list id="3b1739a1-df5a-473d-b32f-9ec6ee912fe8" name="Changes by Gaming" comment="" />
     <list id="f15d9c41-f629-4dfa-a59e-a4b80fcbce05" name="Changes by kanio" comment="" />
+    <list id="bb306efc-f4ab-4a06-8fb3-d7092d5e93c8" name="Changes by Kuba" comment="">
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/gym/backend/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/gym/backend/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/gym/backend/dto/UserLoginDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/gym/backend/dto/UserLoginDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/gym/backend/dto/UserRegistrationDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/gym/backend/dto/UserRegistrationDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/gym/backend/model/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/gym/backend/model/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/gym/backend/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/gym/backend/service/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/resources/application.properties" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
   </component>
   <component name="FormatOnSaveOptions">
     <option name="myRunOnSave" value="true" />
@@ -24,11 +46,35 @@
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="LineStatusTrackerManager">
+    <file path="$PROJECT_DIR$/backend/src/main/java/gym/backend/controller/UserController.java">
+      <ranges>
+        <range start1="5" end1="5" start2="5" end2="6" changelist="3f03eb5f-264f-401f-abbe-9daae1732b08" />
+        <range start1="14" end1="15" start2="15" end2="15" changelist="3f03eb5f-264f-401f-abbe-9daae1732b08" />
+        <range start1="17" end1="18" start2="17" end2="18" changelist="bb306efc-f4ab-4a06-8fb3-d7092d5e93c8" />
+        <range start1="20" end1="21" start2="20" end2="20" changelist="3f03eb5f-264f-401f-abbe-9daae1732b08" />
+        <range start1="22" end1="22" start2="21" end2="22" changelist="3f03eb5f-264f-401f-abbe-9daae1732b08" />
+      </ranges>
+    </file>
+    <file path="$PROJECT_DIR$/backend/src/main/java/gym/backend/service/UserService.java">
+      <ranges>
+        <range start1="10" end1="10" start2="10" end2="11" changelist="3f03eb5f-264f-401f-abbe-9daae1732b08" />
+        <range start1="13" end1="14" start2="14" end2="14" changelist="3f03eb5f-264f-401f-abbe-9daae1732b08" />
+        <range start1="15" end1="15" start2="15" end2="16" changelist="3f03eb5f-264f-401f-abbe-9daae1732b08" />
+        <range start1="18" end1="19" start2="19" end2="19" changelist="3f03eb5f-264f-401f-abbe-9daae1732b08" />
+        <range start1="42" end1="43" start2="42" end2="43" changelist="bb306efc-f4ab-4a06-8fb3-d7092d5e93c8" />
+      </ranges>
+    </file>
+  </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
   <component name="OptimizeOnSaveOptions">
     <option name="myRunOnSave" value="true" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+    <option name="showPreview" value="true" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
@@ -42,29 +88,29 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;code.cleanup.on.save&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;new-better-front-react&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/ckami/Documents/GymBucket/frontend/src/shared/components/layout&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;npm.start.executor&quot;: &quot;Run&quot;,
-    &quot;prettierjs.PrettierConfiguration.Package&quot;: &quot;C:\\Users\\ckami\\Documents\\GymBucket\\frontend\\node_modules\\prettier&quot;,
-    &quot;rearrange.code.on.save&quot;: &quot;true&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settings.ide.settings.web.browsers&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;C:\\Users\\ckami\\Documents\\GymBucket\\frontend\\node_modules\\typescript\\lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "code.cleanup.on.save": "true",
+    "git-widget-placeholder": "new-better-front-react",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/ckami/Documents/GymBucket/frontend/src/shared/components/layout",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "npm.start.executor": "Run",
+    "prettierjs.PrettierConfiguration.Package": "C:\\Users\\ckami\\Documents\\GymBucket\\frontend\\node_modules\\prettier",
+    "rearrange.code.on.save": "true",
+    "settings.editor.selected.configurable": "actions.on.save",
+    "ts.external.directory.path": "C:\\Users\\ckami\\Documents\\GymBucket\\frontend\\node_modules\\typescript\\lib",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\ckami\Documents\GymBucket\frontend\src\shared\components\layout" />
@@ -72,10 +118,19 @@
       <recent name="C:\Users\ckami\Documents\GymBucket\frontend\src\pages\homepage" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\ckami\Documents\GymBucket\frontend\src\services" />
       <recent name="C:\Users\ckami\Documents\GymBucket\frontend\src\shared\components\layout" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="npm.start">
+    <configuration name="BackendApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
+      <module name="backend" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="gym.backend.BackendApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="start" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
       <package-json value="$PROJECT_DIR$/frontend/package.json" />
       <command value="run" />
@@ -92,6 +147,13 @@
       </list>
     </recent_temporary>
   </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="jdk-17.0.10-corretto-17.0.10-4caba194b151-5cd809f4" />
+      </set>
+    </attachedChunks>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -104,6 +166,8 @@
       <workItem from="1748990038576" duration="5173000" />
       <workItem from="1749160237508" duration="10423000" />
       <workItem from="1749292354794" duration="433000" />
+      <workItem from="1749314125050" duration="234000" />
+      <workItem from="1749393859315" duration="7235000" />
     </task>
     <task id="LOCAL-00001" summary="New, better front">
       <option name="closed" value="true" />
@@ -113,7 +177,15 @@
       <option name="project" value="LOCAL" />
       <updated>1749172179773</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="New, better front">
+      <option name="closed" value="true" />
+      <created>1749314330964</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1749314330964</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
