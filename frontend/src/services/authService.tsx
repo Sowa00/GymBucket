@@ -1,5 +1,4 @@
-// API Configuration
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api'
+import { API_BASE_URL, API_TIMEOUT } from '../config/config'
 
 // Types
 export interface LoginRequest {
@@ -59,6 +58,9 @@ class AuthService {
    */
   async login(credentials: LoginRequest): Promise<LoginResponse> {
     try {
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT)
+
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: {
@@ -66,8 +68,10 @@ class AuthService {
           Accept: 'application/json',
         },
         body: JSON.stringify(credentials),
+        signal: controller.signal,
       })
 
+      clearTimeout(timeoutId)
       const data: LoginResponse = await response.json()
 
       if (!response.ok) {

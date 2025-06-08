@@ -21,6 +21,8 @@ type FormData = {
 }
 
 function LoginPage() {
+  console.log('LoginPage is rendering!') // ← Add this line
+
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [loginError, setLoginError] = useState('')

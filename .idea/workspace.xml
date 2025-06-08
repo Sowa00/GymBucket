@@ -5,24 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3f03eb5f-264f-401f-abbe-9daae1732b08" name="Changes" comment="New, better front">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/gym/backend/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/gym/backend/controller/UserController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/gym/backend/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/gym/backend/service/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/.env" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/.env" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/login/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/login/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/login/styles.module.scss" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/login/styles.module.scss" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/router.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/router.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/services/authService.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/services/authService.tsx" afterDir="false" />
     </list>
-    <list id="3b1739a1-df5a-473d-b32f-9ec6ee912fe8" name="Changes by Gaming" comment="" />
     <list id="f15d9c41-f629-4dfa-a59e-a4b80fcbce05" name="Changes by kanio" comment="" />
-    <list id="bb306efc-f4ab-4a06-8fb3-d7092d5e93c8" name="Changes by Kuba" comment="">
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/gym/backend/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/gym/backend/controller/UserController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/gym/backend/dto/UserLoginDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/gym/backend/dto/UserLoginDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/gym/backend/dto/UserRegistrationDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/gym/backend/dto/UserRegistrationDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/gym/backend/model/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/gym/backend/model/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/gym/backend/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/gym/backend/service/UserService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/resources/application.properties" afterDir="false" />
-    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -45,26 +33,6 @@
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
-  </component>
-  <component name="LineStatusTrackerManager">
-    <file path="$PROJECT_DIR$/backend/src/main/java/gym/backend/controller/UserController.java">
-      <ranges>
-        <range start1="5" end1="5" start2="5" end2="6" changelist="3f03eb5f-264f-401f-abbe-9daae1732b08" />
-        <range start1="14" end1="15" start2="15" end2="15" changelist="3f03eb5f-264f-401f-abbe-9daae1732b08" />
-        <range start1="17" end1="18" start2="17" end2="18" changelist="bb306efc-f4ab-4a06-8fb3-d7092d5e93c8" />
-        <range start1="20" end1="21" start2="20" end2="20" changelist="3f03eb5f-264f-401f-abbe-9daae1732b08" />
-        <range start1="22" end1="22" start2="21" end2="22" changelist="3f03eb5f-264f-401f-abbe-9daae1732b08" />
-      </ranges>
-    </file>
-    <file path="$PROJECT_DIR$/backend/src/main/java/gym/backend/service/UserService.java">
-      <ranges>
-        <range start1="10" end1="10" start2="10" end2="11" changelist="3f03eb5f-264f-401f-abbe-9daae1732b08" />
-        <range start1="13" end1="14" start2="14" end2="14" changelist="3f03eb5f-264f-401f-abbe-9daae1732b08" />
-        <range start1="15" end1="15" start2="15" end2="16" changelist="3f03eb5f-264f-401f-abbe-9daae1732b08" />
-        <range start1="18" end1="19" start2="19" end2="19" changelist="3f03eb5f-264f-401f-abbe-9daae1732b08" />
-        <range start1="42" end1="43" start2="42" end2="43" changelist="bb306efc-f4ab-4a06-8fb3-d7092d5e93c8" />
-      </ranges>
-    </file>
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -105,6 +73,9 @@
     "nodejs_package_manager_path": "npm",
     "npm.start.executor": "Run",
     "prettierjs.PrettierConfiguration.Package": "C:\\Users\\ckami\\Documents\\GymBucket\\frontend\\node_modules\\prettier",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
     "rearrange.code.on.save": "true",
     "settings.editor.selected.configurable": "actions.on.save",
     "ts.external.directory.path": "C:\\Users\\ckami\\Documents\\GymBucket\\frontend\\node_modules\\typescript\\lib",
@@ -118,6 +89,7 @@
       <recent name="C:\Users\ckami\Documents\GymBucket\frontend\src\pages\homepage" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\ckami\Documents\GymBucket\frontend" />
       <recent name="C:\Users\ckami\Documents\GymBucket\frontend\src\services" />
       <recent name="C:\Users\ckami\Documents\GymBucket\frontend\src\shared\components\layout" />
     </key>
@@ -167,7 +139,7 @@
       <workItem from="1749160237508" duration="10423000" />
       <workItem from="1749292354794" duration="433000" />
       <workItem from="1749314125050" duration="234000" />
-      <workItem from="1749393859315" duration="7235000" />
+      <workItem from="1749393859315" duration="7861000" />
     </task>
     <task id="LOCAL-00001" summary="New, better front">
       <option name="closed" value="true" />
@@ -185,7 +157,23 @@
       <option name="project" value="LOCAL" />
       <updated>1749314330964</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Changes by Kuba">
+      <option name="closed" value="true" />
+      <created>1749406110631</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1749406110631</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Changes by Kuba">
+      <option name="closed" value="true" />
+      <created>1749406123822</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1749406123822</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -204,7 +192,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="New, better front" />
-    <option name="LAST_COMMIT_MESSAGE" value="New, better front" />
+    <MESSAGE value="Changes by Kuba" />
+    <option name="LAST_COMMIT_MESSAGE" value="Changes by Kuba" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
