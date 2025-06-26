@@ -1,0 +1,457 @@
+// Variables
+$primary-purple: #8b5cf6;
+$primary-pink: #ec4899;
+$workout-color: #3b82f6;
+$nutrition-color: #10b981;
+$consultation-color: #f59e0b;
+$dark-bg: #0f172a;
+$dark-card: rgba(255, 255, 255, 0.1);
+$border-color: rgba(139, 92, 246, 0.3);
+$text-primary: #ffffff;
+$text-secondary: #cbd5e1;
+$text-muted: #94a3b8;
+$hover-bg: rgba(255, 255, 255, 0.1);
+
+// Mixins
+@mixin gradient-bg($from, $to) {
+  background: linear-gradient(135deg, $from 0%, $to 100%);
+}
+
+@mixin glassmorphism {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+@mixin card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+  }
+}
+
+@mixin button-style {
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+}
+
+// Calendar Component
+.calendar {
+  @include glassmorphism;
+  border-radius: 16px;
+  padding: 1.5rem;
+  min-height: 800px;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  &__navigation {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  &__nav-btn {
+    @include button-style;
+    @include glassmorphism;
+    padding: 8px;
+    color: $text-primary;
+
+    &:hover {
+      background: $hover-bg;
+    }
+  }
+
+  &__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: $text-primary;
+    min-width: 200px;
+    text-align: center;
+  }
+
+  &__view-controls {
+    display: flex;
+    gap: 0.5rem;
+    @include glassmorphism;
+    padding: 4px;
+    border-radius: 12px;
+  }
+
+  &__view-btn {
+    @include button-style;
+    padding: 8px 16px;
+    background: transparent;
+    color: $text-secondary;
+    font-size: 0.875rem;
+
+    &--active {
+      @include gradient-bg($primary-purple, $primary-pink);
+      color: $text-primary;
+      box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+    }
+
+    &:hover:not(&--active) {
+      background: $hover-bg;
+      color: $text-primary;
+    }
+  }
+
+  &__content {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 2rem;
+    height: calc(100% - 120px);
+  }
+
+  &__main {
+    min-height: 600px;
+  }
+
+  // Month View
+  &__month {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    margin-bottom: 1rem;
+  }
+
+  &__weekday {
+    padding: 1rem;
+    text-align: center;
+    font-weight: 600;
+    color: $text-secondary;
+    font-size: 0.875rem;
+  }
+
+  &__days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    flex: 1;
+  }
+
+  &__day {
+    @include glassmorphism;
+    border-radius: 8px;
+    padding: 0.75rem;
+    min-height: 120px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+
+    &:hover:not(&--empty) {
+      background: rgba(255, 255, 255, 0.15);
+      transform: scale(1.02);
+    }
+
+    &--empty {
+      background: transparent;
+      border: none;
+      cursor: default;
+    }
+
+    &--today {
+      background: rgba(139, 92, 246, 0.2);
+      border: 2px solid $primary-purple;
+
+      .calendar__day-number {
+        color: $primary-purple;
+        font-weight: 700;
+      }
+    }
+
+    &--selected {
+      background: rgba(236, 72, 153, 0.2);
+      border: 2px solid $primary-pink;
+
+      .calendar__day-number {
+        color: $primary-pink;
+        font-weight: 700;
+      }
+    }
+  }
+
+  &__day-number {
+    display: block;
+    font-weight: 600;
+    color: $text-primary;
+    margin-bottom: 0.5rem;
+  }
+
+  &__day-events {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &__event {
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: white;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &--workout {
+      background: $workout-color;
+    }
+
+    &--nutrition {
+      background: $nutrition-color;
+    }
+
+    &--consultation {
+      background: $consultation-color;
+    }
+  }
+
+  &__event-more {
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    color: $text-muted;
+    font-weight: 500;
+  }
+
+  // Sidebar
+  &__sidebar {
+    @include glassmorphism;
+    border-radius: 12px;
+    padding: 1.5rem;
+    height: fit-content;
+    max-height: 600px;
+    overflow-y: auto;
+
+    // Custom scrollbar
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(139, 92, 246, 0.5);
+      border-radius: 3px;
+
+      &:hover {
+        background: rgba(139, 92, 246, 0.7);
+      }
+    }
+  }
+
+  &__sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+
+    h3 {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: $text-primary;
+    }
+  }
+
+  &__add-event {
+    @include button-style;
+    @include gradient-bg($primary-purple, $primary-pink);
+    color: $text-primary;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.875rem;
+
+    &:hover {
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+    }
+  }
+
+  &__events-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  &__no-events {
+    text-align: center;
+    padding: 2rem;
+    color: $text-muted;
+
+    p {
+      font-style: italic;
+    }
+  }
+
+  &__event-card {
+    @include glassmorphism;
+    border-radius: 12px;
+    padding: 1rem;
+    border-left: 4px solid;
+    @include card-hover;
+
+    &.calendar__event--workout {
+      border-left-color: $workout-color;
+    }
+
+    &.calendar__event--nutrition {
+      border-left-color: $nutrition-color;
+    }
+
+    &.calendar__event--consultation {
+      border-left-color: $consultation-color;
+    }
+  }
+
+  &__event-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+
+    h4 {
+      font-weight: 600;
+      color: $text-primary;
+      font-size: 0.95rem;
+    }
+  }
+
+  &__event-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  &__event-action {
+    @include button-style;
+    background: rgba(255, 255, 255, 0.1);
+    color: $text-secondary;
+    padding: 4px;
+    border-radius: 6px;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: $text-primary;
+    }
+  }
+
+  &__event-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__event-detail {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: $text-secondary;
+    font-size: 0.875rem;
+
+    svg {
+      color: $text-muted;
+      flex-shrink: 0;
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 1024px) {
+  .calendar {
+    &__content {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    &__sidebar {
+      max-height: none;
+      height: auto;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .calendar {
+    padding: 1rem;
+
+    &__header {
+      flex-direction: column;
+      gap: 1rem;
+      align-items: stretch;
+    }
+
+    &__navigation {
+      justify-content: center;
+    }
+
+    &__view-controls {
+      justify-self: center;
+    }
+
+    &__day {
+      min-height: 80px;
+      padding: 0.5rem;
+    }
+
+    &__day-number {
+      font-size: 0.875rem;
+    }
+
+    &__event {
+      font-size: 0.7rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .calendar {
+    &__days {
+      gap: 0.5px;
+    }
+
+    &__day {
+      min-height: 60px;
+      padding: 0.25rem;
+    }
+
+    &__weekday {
+      padding: 0.5rem;
+      font-size: 0.75rem;
+    }
+
+    &__event {
+      display: none; // Hide events on very small screens to avoid clutter
+    }
+
+    &__event-more {
+      display: none;
+    }
+  }
+}
