@@ -8,24 +8,17 @@ import App from './App.tsx'
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: (
-      <App>
-        <Layout />
-      </App>
-    ),
-    children: [
-      {
-        index: true,
-        element: <LoginPage />,
-      },
-    ],
+    element: <LoginPage />,
   },
-
+  {
+    path: '/login',
+    element: <LoginPage />,
+  },
   {
     path: '/homepage',
     element: (
       <App>
-        <Layout></Layout>
+        <Layout />
       </App>
     ),
     children: [
@@ -39,7 +32,7 @@ export const router = createBrowserRouter([
     path: '/calendar',
     element: (
       <App>
-        <Layout></Layout>
+        <Layout />
       </App>
     ),
     children: [
