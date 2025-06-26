@@ -6,6 +6,7 @@ target/
 /.idea/misc.xml
 /.idea/vcs.xml
 /.idea/workspace.xml
+/frontend/node_modules
 
 ### STS ###
 .apt_generated
