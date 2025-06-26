@@ -1,1 +1,43 @@
-/* You can add global styles to this file, and also import other style files */
+/* Global Reset - usuwa białe ramki i problemy z overflow */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow-x: hidden;
+  background: #0f172a;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Usuwa domyślne style Angular */
+app-root {
+  display: block;
+  height: 100vh;
+  width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Usuwa białe ramki z router-outlet */
+router-outlet {
+  display: none;
+}
+
+/* Naprawia problemy z kontenerami */
+.login-container,
+.dashboard {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow-x: hidden;
+}
