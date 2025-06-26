@@ -1,4 +1,4 @@
-import { API_BASE_URL, API_TIMEOUT } from '../config/config'
+import { API_BASE_URL, API_TIMEOUT } from '../config/config.tsx'
 
 // Types
 export interface LoginRequest {
