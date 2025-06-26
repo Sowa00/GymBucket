@@ -4,30 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1cc85814-76a5-466a-825b-524d35618cf8" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/GymBucket.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/GymBucket.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/App.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/App.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/config/config.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/index.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/main.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/calendar/index.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/calendar/styles.scss" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/homepage/index.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/homepage/styles.scss" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/login/index.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/login/styles.module.scss" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/users/index.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/users/styles.module.scss" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/router.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/services/authService.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/shared/components/layout/Gr5Y-j-XcAAoeQ8.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/shared/components/layout/index.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/shared/components/layout/styles.module.scss" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/vite-env.d.ts" beforeDir="false" />
-    </list>
+    <list default="true" id="1cc85814-76a5-466a-825b-524d35618cf8" name="Changes" comment="front" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -80,7 +57,7 @@
     "project.structure.last.edited": "Project",
     "project.structure.proportion": "0.0",
     "project.structure.side.proportion": "0.0",
-    "ts.external.directory.path": "C:\\Users\\ckami\\Documents\\GymBucket\\frontend\\node_modules\\typescript\\lib",
+    "ts.external.directory.path": "C:\\Users\\Kuba\\IdeaProjects\\internetowe\\GymBucket\\frontend\\node_modules\\typescript\\lib",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -116,12 +93,50 @@
       <workItem from="1750283379305" duration="582000" />
       <workItem from="1750284312485" duration="144000" />
     </task>
+    <task id="LOCAL-00001" summary="commit">
+      <option name="closed" value="true" />
+      <created>1750970543792</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1750970543792</updated>
+    </task>
+    <task id="LOCAL-00002" summary="front">
+      <option name="closed" value="true" />
+      <created>1750970659524</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1750970659524</updated>
+    </task>
+    <task id="LOCAL-00003" summary="front">
+      <option name="closed" value="true" />
+      <created>1750970677462</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1750970677462</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="VcsManagerConfiguration">
-    <option name="LAST_COMMIT_MESSAGE" value="" />
+    <MESSAGE value="commit" />
+    <MESSAGE value="front" />
+    <option name="LAST_COMMIT_MESSAGE" value="front" />
   </component>
 </project>
