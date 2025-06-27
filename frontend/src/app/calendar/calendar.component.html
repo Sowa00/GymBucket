@@ -1,0 +1,374 @@
+<!-- Navbar dla kalendarza -->
+<div class="calendar-navbar">
+  <div class="navbar-brand">
+    <div class="logo-icon">💪</div>
+    <h1>GymBucket</h1>
+  </div>
+
+  <nav class="navbar-nav">
+    <button class="nav-link" (click)="goToHomepage()">
+      🏠 Dashboard
+    </button>
+    <button class="nav-link active">
+      📅 Kalendarz
+    </button>
+    <button class="nav-link" (click)="logout()">
+      🚪 Wyloguj
+    </button>
+  </nav>
+</div>
+
+<div class="calendar-container">
+  <!-- Header z nawigacją -->
+  <div class="calendar-header">
+    <div class="calendar-navigation">
+      <button class="nav-btn" (click)="previousMonth()">
+        <span>⬅️</span>
+      </button>
+
+      <h2 class="calendar-title">
+        {{ monthNames[currentDate.getMonth()] }} {{ currentDate.getFullYear() }}
+      </h2>
+
+      <button class="nav-btn" (click)="nextMonth()">
+        <span>➡️</span>
+      </button>
+    </div>
+
+    <div class="calendar-controls">
+      <!-- Widoki -->
+      <div class="view-controls">
+        <button
+          *ngFor="let mode of viewModes"
+          [class]="'view-btn ' + (viewMode === mode ? 'view-btn-active' : '')"
+          (click)="setViewMode(mode)"
+        >
+          {{ mode === 'month' ? 'Miesiąc' : mode === 'week' ? 'Tydzień' : 'Dzień' }}
+        </button>
+      </div>
+
+      <!-- Filtry -->
+      <div class="filters">
+        <input
+          type="text"
+          placeholder="Szukaj klienta..."
+          [(ngModel)]="searchClient"
+          class="search-input"
+        />
+
+        <select [(ngModel)]="statusFilter" class="status-filter">
+          <option value="">Wszystkie statusy</option>
+          <option value="confirmed">Potwierdzone</option>
+          <option value="pending">Oczekujące</option>
+          <option value="cancelled">Anulowane</option>
+        </select>
+      </div>
+
+      <button class="add-btn" (click)="openAddModal()">
+        <span>➕</span>
+        Dodaj Trening
+      </button>
+    </div>
+  </div>
+
+  <!-- Widok kalendarza -->
+  <div class="calendar-content" *ngIf="viewMode === 'month'">
+    <!-- Nagłówki dni tygodnia -->
+    <div class="calendar-weekdays">
+      <div *ngFor="let day of dayNames" class="weekday">
+        {{ day }}
+      </div>
+    </div>
+
+    <!-- Dni kalendarza -->
+    <div class="calendar-grid">
+      <div
+        *ngFor="let day of calendarDays"
+        [class]="'calendar-day ' +
+          (day.isCurrentMonth ? 'current-month' : 'other-month') + ' ' +
+          (day.isToday ? 'today' : '') + ' ' +
+          (day.isSelected ? 'selected' : '')"
+        (click)="selectDay(day)"
+      >
+        <div class="day-number">{{ day.date.getDate() }}</div>
+
+        <div class="day-trainings">
+          <div
+            *ngFor="let training of day.trainings.slice(0, 3)"
+            [class]="'training-item ' + getStatusClass(training.status)"
+            (click)="openTrainingDetails(training); $event.stopPropagation()"
+          >
+            <span class="training-time">{{ training.startTime }}</span>
+            <span class="training-client">{{ training.clientName }}</span>
+          </div>
+
+          <div *ngIf="day.trainings.length > 3" class="more-trainings">
+            +{{ day.trainings.length - 3 }} więcej
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Widok tygodniowy - DZIAŁAJĄCY -->
+  <div class="week-view" *ngIf="viewMode === 'week'">
+    <div class="week-header">
+      <div class="week-time-header">Czas</div>
+      <div *ngFor="let day of weekDays" [class]="'week-day-header ' + (day.isToday ? 'today' : '')">
+        <div>{{ day.dayName }}</div>
+        <div>{{ day.dayNumber }}</div>
+      </div>
+    </div>
+
+    <div class="week-content">
+      <div class="time-slots-grid">
+        <div *ngFor="let timeSlot of timeSlots" class="time-slot-row">
+          <div class="time-label">{{ timeSlot }}</div>
+          <div *ngFor="let day of weekDays" class="week-day-slot"
+               (click)="!isPastDate(day.date) && openAddModal(day.date)">
+            <div *ngFor="let training of getTrainingsForTimeSlot(day.date, timeSlot)"
+                 [class]="'week-training ' + getStatusClass(training.status)"
+                 (click)="openTrainingDetails(training); $event.stopPropagation()">
+              {{ training.clientName }} ({{ formatDuration(training.duration) }})
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Widok dzienny - POPRAWIONY -->
+  <div class="day-view" *ngIf="viewMode === 'day'">
+    <div class="day-header">
+      <h3>{{ selectedDate ? selectedDate.toLocaleDateString('pl-PL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'Wybierz dzień' }}</h3>
+      <p *ngIf="selectedDate">{{ getTrainingsForDate(selectedDate).length }} zaplanowanych treningów</p>
+    </div>
+
+    <div class="day-schedule" *ngIf="selectedDate">
+      <div class="time-slots-grid">
+        <div *ngFor="let timeSlot of timeSlots" class="time-slot-row">
+          <div class="time-label">{{ timeSlot }}</div>
+          <div class="time-content"
+               (click)="!isPastDate(selectedDate) && openAddModal(selectedDate)">
+            <div *ngFor="let training of getTrainingsForTimeSlot(selectedDate, timeSlot)"
+                 class="day-training-item"
+                 (click)="openTrainingDetails(training); $event.stopPropagation()">
+              <div class="training-time-slot">
+                {{ training.startTime }} - {{ getTrainingEndTime(training) }}
+                ({{ formatDuration(training.duration) }})
+              </div>
+              <div class="training-details">
+                <h4>{{ training.clientName }}</h4>
+                <p>{{ training.location }}</p>
+                <span [class]="'status-badge ' + getStatusClass(training.status)">
+                  {{ getStatusLabel(training.status) }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="getTrainingsForDate(selectedDate).length === 0" class="no-trainings">
+        <p>Brak treningów w tym dniu</p>
+        <button *ngIf="!isPastDate(selectedDate)" class="add-btn-small" (click)="openAddModal(selectedDate)">
+          Dodaj trening
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lista treningów (sidebar) -->
+  <div class="trainings-sidebar">
+    <h3>Nadchodzące treningi</h3>
+
+    <div class="trainings-list">
+      <div
+        *ngFor="let training of filteredTrainings.slice(0, 5)"
+        class="training-card"
+        (click)="openTrainingDetails(training)"
+      >
+        <div class="training-header">
+          <span class="training-date">{{ training.date }}</span>
+          <span [class]="'status-badge ' + getStatusClass(training.status)">
+            {{ getStatusLabel(training.status) }}
+          </span>
+        </div>
+
+        <div class="training-info">
+          <h4>{{ training.clientName }}</h4>
+          <p>{{ training.startTime }} - {{ getTrainingEndTime(training) }}</p>
+          <p>{{ training.location }}</p>
+        </div>
+      </div>
+    </div>
+
+    <button class="view-all-btn">
+      Zobacz wszystkie treningi
+    </button>
+  </div>
+</div>
+
+<!-- Modal dodawania/edycji treningu -->
+<div class="modal-overlay" *ngIf="showAddModal" (click)="closeAddModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ newTraining.id ? 'Edytuj Trening' : 'Dodaj Nowy Trening' }}</h3>
+      <button class="close-btn" (click)="closeAddModal()">✕</button>
+    </div>
+
+    <form class="training-form" (ngSubmit)="saveTraining()">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Data</label>
+          <input
+            type="date"
+            [(ngModel)]="newTraining.date"
+            name="date"
+            required
+            class="form-input"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Status</label>
+          <select [(ngModel)]="newTraining.status" name="status" class="form-select">
+            <option value="confirmed">Potwierdzony</option>
+            <option value="pending">Oczekujący</option>
+            <option value="cancelled">Anulowany</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Godzina rozpoczęcia</label>
+          <input
+            type="time"
+            [(ngModel)]="newTraining.startTime"
+            name="startTime"
+            required
+            class="form-input"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Czas trwania (minuty)</label>
+          <input
+            type="number"
+            [(ngModel)]="newTraining.duration"
+            name="duration"
+            min="15"
+            step="15"
+            placeholder="60"
+            required
+            class="form-input"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Klient</label>
+        <input
+          type="text"
+          [(ngModel)]="newTraining.clientName"
+          name="clientName"
+          placeholder="Imię i nazwisko klienta"
+          required
+          class="form-input"
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Lokalizacja</label>
+        <input
+          type="text"
+          [(ngModel)]="newTraining.location"
+          name="location"
+          placeholder="Np. Siłownia A, Sala fitness"
+          required
+          class="form-input"
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Notatki</label>
+        <textarea
+          [(ngModel)]="newTraining.notes"
+          name="notes"
+          placeholder="Dodatkowe informacje o treningu..."
+          class="form-textarea"
+          rows="3"
+        ></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-cancel" (click)="closeAddModal()">
+          Anuluj
+        </button>
+        <button
+          type="submit"
+          class="btn-save"
+          [disabled]="!validateTraining()"
+        >
+          {{ newTraining.id ? 'Zapisz zmiany' : 'Dodaj trening' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal szczegółów treningu -->
+<div class="modal-overlay" *ngIf="showDetailsModal" (click)="closeDetailsModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Szczegóły Treningu</h3>
+      <button class="close-btn" (click)="closeDetailsModal()">✕</button>
+    </div>
+
+    <div class="training-details" *ngIf="selectedTraining">
+      <div class="detail-row">
+        <span class="detail-label">Data:</span>
+        <span class="detail-value">{{ selectedTraining.date }}</span>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-label">Godzina:</span>
+        <span class="detail-value">
+          {{ selectedTraining.startTime }} - {{ getTrainingEndTime(selectedTraining) }}
+        </span>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-label">Klient:</span>
+        <span class="detail-value">{{ selectedTraining.clientName }}</span>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-label">Lokalizacja:</span>
+        <span class="detail-value">{{ selectedTraining.location }}</span>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-label">Status:</span>
+        <span [class]="'status-badge ' + getStatusClass(selectedTraining.status)">
+          {{ getStatusLabel(selectedTraining.status) }}
+        </span>
+      </div>
+
+      <div class="detail-row" *ngIf="selectedTraining.notes">
+        <span class="detail-label">Notatki:</span>
+        <span class="detail-value">{{ selectedTraining.notes }}</span>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-edit" (click)="editTraining(selectedTraining!)">
+          ✏️ Edytuj
+        </button>
+        <button class="btn-delete" (click)="deleteTraining(selectedTraining!.id)">
+          🗑️ Usuń
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,210 @@
+<div class="login-container">
+  <div class="background-shapes">
+    <div class="shape1"></div>
+    <div class="shape2"></div>
+    <div class="shape3"></div>
+  </div>
+
+  <div class="login-card">
+    <div class="header">
+      <div class="logo">
+        <div class="logo-icon">💪</div>
+        <div class="logo-text">
+          <h1>GymBucket</h1>
+          <p>System zarządzania dla trenerów</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Login Form -->
+    <div *ngIf="!showForgotPassword" class="form-container">
+      <div class="welcome">
+        <h2>Witaj z powrotem!</h2>
+        <p>Zaloguj się, aby zarządzać swoimi klientami</p>
+      </div>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="form">
+        <div class="input-group">
+          <label for="email" class="label">Adres Email</label>
+          <div class="input-wrapper">
+            <span class="input-icon">📧</span>
+            <input
+              id="email"
+              type="email"
+              placeholder="Wprowadź swój email"
+              formControlName="email"
+              [class]="'input ' +
+                (hasError('email') ? 'input-error' : '') +
+                (isFieldValid('email') ? ' input-valid' : '')"
+            />
+            <span *ngIf="isFieldValid('email')" class="valid-icon">✅</span>
+          </div>
+          <span *ngIf="hasError('email')" class="error-message">
+            {{ getErrorMessage('email') }}
+          </span>
+        </div>
+
+        <div class="input-group">
+          <label for="password" class="label">Hasło</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🔒</span>
+            <input
+              id="password"
+              [type]="showPassword ? 'text' : 'password'"
+              placeholder="Wprowadź swoje hasło"
+              formControlName="password"
+              [class]="'input ' +
+                (hasError('password') ? 'input-error' : '') +
+                (isFieldValid('password') ? ' input-valid' : '')"
+            />
+            <button
+              type="button"
+              class="password-toggle"
+              (click)="togglePasswordVisibility()"
+            >
+              {{ showPassword ? '🙈' : '👁️' }}
+            </button>
+            <span *ngIf="isFieldValid('password')" class="valid-icon">✅</span>
+          </div>
+          <span *ngIf="hasError('password')" class="error-message">
+            {{ getErrorMessage('password') }}
+          </span>
+        </div>
+
+        <div class="form-options">
+          <label class="checkbox">
+            <input type="checkbox" formControlName="rememberMe" />
+            <span class="checkmark"></span>
+            Zapamiętaj mnie
+          </label>
+          <button type="button" class="forgot-password" (click)="toggleForgotPassword()">
+            Zapomniałeś hasła?
+          </button>
+        </div>
+
+        <div *ngIf="loginError" class="error-alert">
+          {{ loginError }}
+        </div>
+
+        <div *ngIf="forgotPasswordSent" class="success-alert">
+          📧 Link do resetowania hasła został wysłany na Twój email
+        </div>
+
+        <button
+          type="submit"
+          [disabled]="isLoading"
+          [class]="'submit-button ' + (isLoading ? 'loading' : '')"
+        >
+          <span *ngIf="isLoading" class="loading-spinner"></span>
+          <span *ngIf="!isLoading">
+            Zaloguj się
+            <span class="arrow">→</span>
+          </span>
+        </button>
+      </form>
+
+      <div class="demo-credentials">
+        <p>🎯 Dane demo:</p>
+        <div class="credentials" (click)="fillDemoCredentials()">
+          <span>Email: aaa.com</span>
+          <span>Hasło: 2137</span>
+        </div>
+        <small>Kliknij aby wypełnić automatycznie</small>
+      </div>
+
+      <div class="footer">
+        <p>
+          Nie masz konta?
+          <button type="button" class="signup-link" (click)="goToRegister()">
+            Zarejestruj się za darmo
+          </button>
+        </p>
+      </div>
+    </div>
+
+    <!-- Forgot Password Form -->
+    <div *ngIf="showForgotPassword" class="form-container">
+      <div class="welcome">
+        <h2>Zresetuj hasło</h2>
+        <p>Wprowadź swój email, a wyślemy Ci link do resetowania hasła</p>
+      </div>
+
+      <div class="form">
+        <div class="input-group">
+          <label for="forgot-email" class="label">Adres Email</label>
+          <div class="input-wrapper">
+            <span class="input-icon">📧</span>
+            <input
+              id="forgot-email"
+              type="email"
+              placeholder="Wprowadź swój email"
+              [(ngModel)]="forgotPasswordEmail"
+              class="input"
+            />
+          </div>
+        </div>
+
+        <div *ngIf="loginError" class="error-alert">
+          {{ loginError }}
+        </div>
+
+        <button
+          type="button"
+          [disabled]="isLoading"
+          [class]="'submit-button ' + (isLoading ? 'loading' : '')"
+          (click)="onForgotPassword()"
+        >
+          <span *ngIf="isLoading" class="loading-spinner"></span>
+          <span *ngIf="!isLoading">
+            Wyślij link resetujący
+            <span class="arrow">→</span>
+          </span>
+        </button>
+
+        <button
+          type="button"
+          class="back-to-login"
+          (click)="toggleForgotPassword()"
+        >
+          ← Powrót do logowania
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="features-panel">
+    <div class="features-content">
+      <h3>Zarządzaj swoim biznesem fitness</h3>
+      <div class="features-list">
+        <div class="feature">
+          <div class="feature-icon">📊</div>
+          <div>
+            <h4>Zarządzanie klientami</h4>
+            <p>Śledź postępy i rozwijaj bazę klientów</p>
+          </div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">💪</div>
+          <div>
+            <h4>Plany treningowe</h4>
+            <p>Twórz spersonalizowane programy ćwiczeń</p>
+          </div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">🥗</div>
+          <div>
+            <h4>Plany żywieniowe</h4>
+            <p>Projektuj jadłospisy i monitoruj odżywianie</p>
+          </div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">📅</div>
+          <div>
+            <h4>Kalendarz</h4>
+            <p>Łatwo zarządzaj terminami i sesjami</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

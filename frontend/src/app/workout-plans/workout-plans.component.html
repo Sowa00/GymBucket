@@ -1,0 +1,770 @@
+<!-- Navbar -->
+<div class="plans-navbar">
+  <div class="navbar-brand">
+    <div class="logo-icon">💪</div>
+    <h1>GymBucket</h1>
+  </div>
+
+  <nav class="navbar-nav">
+    <button class="nav-link" (click)="goToHomepage()">
+      🏠 Dashboard
+    </button>
+    <button class="nav-link" (click)="goToCalendar()">
+      📅 Kalendarz
+    </button>
+    <button class="nav-link active">
+      📋 Plany Treningowe
+    </button>
+    <button class="nav-link" (click)="logout()">
+      🚪 Wyloguj
+    </button>
+  </nav>
+</div>
+
+<div class="plans-container">
+  <!-- Header z nawigacją -->
+  <div class="plans-header">
+    <div class="header-left">
+      <h2>Plany Treningowe</h2>
+      <p>Zarządzaj planami treningowymi i przypisuj je klientom</p>
+    </div>
+
+    <div class="header-actions">
+      <button class="create-btn" (click)="openCreatePlanModal()">
+        <span>➕</span>
+        Stwórz Plan
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs-container">
+    <div class="tabs">
+      <button
+        [class]="'tab-btn ' + (activeTab === 'plans' ? 'active' : '')"
+        (click)="activeTab = 'plans'"
+      >
+        📋 Moje Plany ({{ workoutPlans.length }})
+      </button>
+      <button
+        [class]="'tab-btn ' + (activeTab === 'exercises' ? 'active' : '')"
+        (click)="activeTab = 'exercises'"
+      >
+        🏋️ Ćwiczenia ({{ exercises.length }})
+      </button>
+      <button
+        [class]="'tab-btn ' + (activeTab === 'templates' ? 'active' : '')"
+        (click)="activeTab = 'templates'"
+      >
+        📄 Szablony ({{ templates.length }})
+      </button>
+    </div>
+
+    <!-- Filters and search -->
+    <div class="filters-section">
+      <div class="search-box">
+        <input
+          type="text"
+          placeholder="Szukaj planów, ćwiczeń lub tagów..."
+          [(ngModel)]="searchTerm"
+          class="search-input"
+        />
+      </div>
+
+      <div class="filters" *ngIf="activeTab === 'plans'">
+        <select [(ngModel)]="categoryFilter" class="filter-select">
+          <option value="">Wszystkie kategorie</option>
+          <option *ngFor="let category of categories" [value]="category.value">
+            {{ category.icon }} {{ category.label }}
+          </option>
+        </select>
+
+        <select [(ngModel)]="difficultyFilter" class="filter-select">
+          <option value="">Wszystkie poziomy</option>
+          <option *ngFor="let difficulty of difficulties" [value]="difficulty.value">
+            {{ difficulty.label }}
+          </option>
+        </select>
+
+        <select [(ngModel)]="muscleGroupFilter" class="filter-select">
+          <option value="">Wszystkie partie</option>
+          <option *ngFor="let group of muscleGroups" [value]="group">
+            {{ group }}
+          </option>
+        </select>
+
+        <label class="checkbox-filter">
+          <input type="checkbox" [(ngModel)]="showOnlyMyPlans" />
+          <span>Tylko moje plany</span>
+        </label>
+      </div>
+
+      <div class="view-controls">
+        <div class="view-buttons">
+          <button
+            [class]="'view-btn ' + (viewMode === 'grid' ? 'active' : '')"
+            (click)="viewMode = 'grid'"
+            title="Widok siatki"
+          >
+            ⚏
+          </button>
+          <button
+            [class]="'view-btn ' + (viewMode === 'list' ? 'active' : '')"
+            (click)="viewMode = 'list'"
+            title="Widok listy"
+          >
+            ☰
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Plans Tab Content -->
+  <div class="tab-content" *ngIf="activeTab === 'plans'">
+    <!-- Grid View -->
+    <div class="plans-grid" *ngIf="viewMode === 'grid'">
+      <div
+        *ngFor="let plan of filteredPlans"
+        class="plan-card"
+        (click)="openPlanDetails(plan)"
+      >
+        <div class="plan-header">
+          <div class="plan-category">
+            <span class="category-icon">{{ getCategoryIcon(plan.category) }}</span>
+            <span class="category-label">{{ getCategoryLabel(plan.category) }}</span>
+          </div>
+
+          <div class="plan-actions" (click)="$event.stopPropagation()">
+            <button class="action-btn" (click)="openEditPlanModal(plan)" title="Edytuj">
+              ✏️
+            </button>
+            <button class="action-btn" (click)="duplicatePlan(plan)" title="Duplikuj">
+              📋
+            </button>
+            <button class="action-btn" (click)="openAssignModal(plan)" title="Przypisz">
+              👥
+            </button>
+          </div>
+        </div>
+
+        <div class="plan-content">
+          <h3 class="plan-name">{{ plan.name }}</h3>
+          <p class="plan-description">{{ plan.description }}</p>
+
+          <div class="plan-meta">
+            <div class="meta-item">
+              <span class="meta-icon">⏱️</span>
+              <span>{{ formatDuration(plan.duration) }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-icon">🏋️</span>
+              <span>{{ plan.exercises.length }} ćwiczeń</span>
+            </div>
+            <div
+              class="difficulty-badge"
+              [style.background-color]="getDifficultyColor(plan.difficulty)"
+            >
+              {{ getDifficultyLabel(plan.difficulty) }}
+            </div>
+          </div>
+
+          <div class="muscle-groups">
+            <span
+              *ngFor="let group of plan.targetMuscleGroups.slice(0, 3)"
+              class="muscle-group-tag"
+            >
+              {{ group }}
+            </span>
+            <span *ngIf="plan.targetMuscleGroups.length > 3" class="more-tags">
+              +{{ plan.targetMuscleGroups.length - 3 }}
+            </span>
+          </div>
+
+          <div class="plan-footer">
+            <div class="assignment-info" *ngIf="plan.clientAssignments?.length">
+              <span class="assignment-icon">👥</span>
+              <span>{{ plan.clientAssignments?.length || 0 }} klientów</span>
+            </div>
+
+            <div class="plan-status">
+              <span *ngIf="plan.isPublic" class="status-public">🌐 Publiczny</span>
+              <span *ngIf="!plan.isPublic" class="status-private">🔒 Prywatny</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty state -->
+      <div *ngIf="filteredPlans.length === 0" class="empty-state">
+        <div class="empty-icon">📋</div>
+        <h3>Brak planów treningowych</h3>
+        <p>Stwórz swój pierwszy plan treningowy lub dostosuj filtry wyszukiwania</p>
+        <button class="create-btn" (click)="openCreatePlanModal()">
+          Stwórz pierwszy plan
+        </button>
+      </div>
+    </div>
+
+    <!-- List View -->
+    <div class="plans-list" *ngIf="viewMode === 'list'">
+      <div
+        *ngFor="let plan of filteredPlans"
+        class="plan-list-item"
+        (click)="openPlanDetails(plan)"
+      >
+        <div class="list-item-left">
+          <div class="plan-icon">{{ getCategoryIcon(plan.category) }}</div>
+          <div class="plan-info">
+            <h4>{{ plan.name }}</h4>
+            <p>{{ plan.description }}</p>
+            <div class="plan-tags">
+              <span class="tag category-tag">{{ getCategoryLabel(plan.category) }}</span>
+              <span
+                class="tag difficulty-tag"
+                [style.background-color]="getDifficultyColor(plan.difficulty)"
+              >
+                {{ getDifficultyLabel(plan.difficulty) }}
+              </span>
+              <span class="tag">{{ formatDuration(plan.duration) }}</span>
+              <span class="tag">{{ plan.exercises.length }} ćwiczeń</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="list-item-right" (click)="$event.stopPropagation()">
+          <div class="assignment-status" *ngIf="plan.clientAssignments?.length">
+            <span>{{ plan.clientAssignments?.length || 0 }} klientów</span>
+          </div>
+
+          <div class="list-actions">
+            <button class="action-btn" (click)="openEditPlanModal(plan)">✏️</button>
+            <button class="action-btn" (click)="duplicatePlan(plan)">📋</button>
+            <button class="action-btn" (click)="openAssignModal(plan)">👥</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Exercises Tab Content -->
+  <div class="tab-content" *ngIf="activeTab === 'exercises'">
+    <div class="exercises-grid">
+      <div
+        *ngFor="let exercise of filteredExercises"
+        class="exercise-card"
+        (click)="openExerciseModal(exercise)"
+      >
+        <div class="exercise-header">
+          <h4>{{ exercise.name }}</h4>
+          <span
+            class="difficulty-badge"
+            [style.background-color]="getDifficultyColor(exercise.difficulty)"
+          >
+            {{ getDifficultyLabel(exercise.difficulty) }}
+          </span>
+        </div>
+
+        <p class="exercise-description">{{ exercise.description }}</p>
+
+        <div class="exercise-details">
+          <div class="detail-section">
+            <strong>Partie mięśniowe:</strong>
+            <div class="muscle-tags">
+              <span *ngFor="let muscle of exercise.muscleGroups" class="muscle-tag">
+                {{ muscle }}
+              </span>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <strong>Sprzęt:</strong>
+            <div class="equipment-tags">
+              <span *ngFor="let equipment of exercise.equipment" class="equipment-tag">
+                {{ equipment }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Templates Tab Content -->
+  <div class="tab-content" *ngIf="activeTab === 'templates'">
+    <div class="templates-grid">
+      <div *ngFor="let template of templates" class="template-card">
+        <div class="template-header">
+          <h4>{{ template.name }}</h4>
+          <span class="template-badge" *ngIf="template.isSystem">System</span>
+        </div>
+
+        <p>{{ template.description }}</p>
+
+        <div class="template-meta">
+          <span class="category-tag">{{ getCategoryLabel(template.category) }}</span>
+          <span>{{ template.exercises.length }} ćwiczeń</span>
+        </div>
+
+        <button class="use-template-btn">
+          Użyj szablonu
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Create/Edit Plan Modal -->
+<div class="modal-overlay" *ngIf="showCreatePlanModal" (click)="closeModals()">
+  <div class="modal-content large-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ editingPlan ? 'Edytuj Plan Treningowy' : 'Stwórz Nowy Plan' }}</h3>
+      <button class="close-btn" (click)="closeModals()">✕</button>
+    </div>
+
+    <form class="plan-form" (ngSubmit)="savePlan()" #planForm="ngForm">>
+      <!-- Basic Info -->
+      <div class="form-section">
+        <h4>Podstawowe informacje</h4>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nazwa planu *</label>
+            <input
+              type="text"
+              [(ngModel)]="newPlan.name"
+              name="name"
+              placeholder="np. Push Day - Góra"
+              required
+              class="form-input"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Kategoria *</label>
+            <select [(ngModel)]="newPlan.category" name="category" class="form-select">
+              <option *ngFor="let category of categories" [value]="category.value">
+                {{ category.icon }} {{ category.label }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Opis *</label>
+          <textarea
+            [(ngModel)]="newPlan.description"
+            name="description"
+            placeholder="Opisz cel i założenia planu treningowego..."
+            class="form-textarea"
+            rows="3"
+          ></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Poziom trudności *</label>
+            <select [(ngModel)]="newPlan.difficulty" name="difficulty" class="form-select">
+              <option *ngFor="let difficulty of difficulties" [value]="difficulty.value">
+                {{ difficulty.label }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Szacowany czas (minuty) *</label>
+            <input
+              type="number"
+              [(ngModel)]="newPlan.duration"
+              name="duration"
+              min="15"
+              step="15"
+              placeholder="60"
+              class="form-input"
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Partie mięśniowe *</label>
+          <div class="checkbox-group">
+            <label *ngFor="let group of muscleGroups" class="checkbox-item">
+              <input
+                type="checkbox"
+                [value]="group"
+                [checked]="newPlan.targetMuscleGroups?.includes(group)"
+                (change)="toggleMuscleGroup(group, $event)"
+              />
+              <span>{{ group }}</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Tagi (oddziel przecinkami)</label>
+            <input
+              type="text"
+              [value]="getTagsAsString()"
+              (input)="updateTags($event)"
+              placeholder="siła, góra, push"
+              class="form-input"
+              name="tags"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" [(ngModel)]="newPlan.isPublic" name="isPublic" />
+              <span>Plan publiczny (widoczny dla innych trenerów)</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Exercises Section -->
+      <div class="form-section">
+        <h4>Ćwiczenia w planie ({{ newPlan.exercises?.length || 0 }})</h4>
+
+        <!-- Add Exercise Form -->
+        <div class="add-exercise-form">
+          <div class="exercise-form-row">
+            <div class="form-group">
+              <label>Ćwiczenie</label>
+              <select [(ngModel)]="newExercise.exerciseId" name="exerciseId" class="form-select">
+                <option value="">Wybierz ćwiczenie</option>
+                <option *ngFor="let exercise of exercises" [value]="exercise.id">
+                  {{ exercise.name }}
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Serie</label>
+              <input
+                type="number"
+                [(ngModel)]="newExercise.sets"
+                name="exerciseSets"
+                min="1"
+                max="10"
+                class="form-input small"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Powtórzenia</label>
+              <input
+                type="text"
+                [(ngModel)]="newExercise.reps"
+                name="exerciseReps"
+                placeholder="8-10"
+                class="form-input small"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Przerwa (s)</label>
+              <input
+                type="number"
+                [(ngModel)]="newExercise.restTime"
+                name="exerciseRestTime"
+                min="30"
+                step="30"
+                class="form-input small"
+              />
+            </div>
+
+            <button type="button" class="add-exercise-btn" (click)="addExerciseToPlan()">
+              ➕ Dodaj
+            </button>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Ciężar (kg) - opcjonalnie</label>
+              <input
+                type="number"
+                [(ngModel)]="newExercise.weight"
+                name="exerciseWeight"
+                min="0"
+                step="0.5"
+                class="form-input"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Notatki</label>
+              <input
+                type="text"
+                [(ngModel)]="newExercise.notes"
+                name="exerciseNotes"
+                placeholder="Kontrolowane tempo, pełny ROM..."
+                class="form-input"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Exercise List -->
+        <div class="exercises-list" *ngIf="newPlan.exercises?.length">
+          <div
+            *ngFor="let exercise of newPlan.exercises; let i = index"
+            class="exercise-item"
+          >
+            <div class="exercise-order">{{ i + 1 }}</div>
+
+            <div class="exercise-details">
+              <h5>{{ getExerciseName(exercise.exerciseId) }}</h5>
+              <div class="exercise-params">
+                <span>{{ exercise.sets }} serie</span>
+                <span>{{ exercise.reps }} powtórzeń</span>
+                <span *ngIf="exercise.weight">{{ exercise.weight }} kg</span>
+                <span>{{ exercise.restTime }}s przerwy</span>
+              </div>
+              <p *ngIf="exercise.notes" class="exercise-notes">{{ exercise.notes }}</p>
+            </div>
+
+            <div class="exercise-actions">
+              <button
+                type="button"
+                class="move-btn"
+                (click)="moveExerciseUp(i)"
+                [disabled]="i === 0"
+              >
+                ↑
+              </button>
+              <button
+                type="button"
+                class="move-btn"
+                (click)="moveExerciseDown(i)"
+                [disabled]="i === (newPlan.exercises?.length || 0) - 1"
+              >
+                ↓
+              </button>
+              <button
+                type="button"
+                class="remove-btn"
+                (click)="removeExerciseFromPlan(i)"
+              >
+                🗑️
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="!newPlan.exercises?.length" class="no-exercises">
+          <p>Brak ćwiczeń w planie. Dodaj pierwsze ćwiczenie powyżej.</p>
+        </div>
+      </div>
+
+      <!-- Validation Errors -->
+      <div *ngIf="validationErrors && validationErrors.length > 0" class="validation-errors">
+        <h5>Popraw następujące błędy:</h5>
+        <ul>
+          <li *ngFor="let error of validationErrors">{{ error }}</li>
+        </ul>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button type="button" class="btn-cancel" (click)="closeModals()">
+          Anuluj
+        </button>
+        <button type="submit" class="btn-save" [disabled]="!validateTraining()">
+          {{ editingPlan ? 'Zapisz zmiany' : 'Stwórz plan' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Exercise Details Modal -->
+<div class="modal-overlay" *ngIf="showExerciseModal" (click)="closeModals()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ selectedExercise?.name }}</h3>
+      <button class="close-btn" (click)="closeModals()">✕</button>
+    </div>
+
+    <div class="exercise-details-content" *ngIf="selectedExercise">
+      <div class="exercise-meta">
+        <span
+          class="difficulty-badge"
+          [style.background-color]="getDifficultyColor(selectedExercise.difficulty)"
+        >
+          {{ getDifficultyLabel(selectedExercise.difficulty) }}
+        </span>
+      </div>
+
+      <p class="exercise-description">{{ selectedExercise.description }}</p>
+
+      <div class="detail-section">
+        <h5>Partie mięśniowe:</h5>
+        <div class="muscle-tags">
+          <span *ngFor="let muscle of selectedExercise.muscleGroups" class="muscle-tag">
+            {{ muscle }}
+          </span>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h5>Wymagany sprzęt:</h5>
+        <div class="equipment-tags">
+          <span *ngFor="let equipment of selectedExercise.equipment" class="equipment-tag">
+            {{ equipment }}
+          </span>
+        </div>
+      </div>
+
+      <div class="detail-section" *ngIf="selectedExercise.instructions?.length">
+        <h5>Instrukcje wykonania:</h5>
+        <ol class="instructions-list">
+          <li *ngFor="let instruction of selectedExercise.instructions">
+            {{ instruction }}
+          </li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Plan Details Modal -->
+<div class="modal-overlay" *ngIf="showPlanDetailsModal" (click)="closeModals()">
+  <div class="modal-content large-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ selectedPlan?.name }}</h3>
+      <button class="close-btn" (click)="closeModals()">✕</button>
+    </div>
+
+    <div class="plan-details-content" *ngIf="selectedPlan">
+      <div class="plan-overview">
+        <div class="overview-item">
+          <span class="overview-label">Kategoria:</span>
+          <span class="overview-value">
+            {{ getCategoryIcon(selectedPlan.category) }} {{ getCategoryLabel(selectedPlan.category) }}
+          </span>
+        </div>
+
+        <div class="overview-item">
+          <span class="overview-label">Poziom:</span>
+          <span
+            class="difficulty-badge"
+            [style.background-color]="getDifficultyColor(selectedPlan.difficulty)"
+          >
+            {{ getDifficultyLabel(selectedPlan.difficulty) }}
+          </span>
+        </div>
+
+        <div class="overview-item">
+          <span class="overview-label">Czas trwania:</span>
+          <span class="overview-value">{{ formatDuration(selectedPlan.duration) }}</span>
+        </div>
+
+        <div class="overview-item">
+          <span class="overview-label">Liczba ćwiczeń:</span>
+          <span class="overview-value">{{ selectedPlan.exercises.length }}</span>
+        </div>
+      </div>
+
+      <div class="plan-description">
+        <h5>Opis:</h5>
+        <p>{{ selectedPlan.description }}</p>
+      </div>
+
+      <div class="muscle-groups-section">
+        <h5>Partie mięśniowe:</h5>
+        <div class="muscle-tags">
+          <span *ngFor="let group of selectedPlan.targetMuscleGroups" class="muscle-tag">
+            {{ group }}
+          </span>
+        </div>
+      </div>
+
+      <div class="exercises-section">
+        <h5>Lista ćwiczeń:</h5>
+        <div class="detailed-exercises-list">
+          <div
+            *ngFor="let exercise of selectedPlan.exercises; let i = index"
+            class="detailed-exercise-item"
+          >
+            <div class="exercise-number">{{ i + 1 }}</div>
+            <div class="exercise-info">
+              <h6>{{ exercise.exercise?.name || getExerciseName(exercise.exerciseId) }}</h6>
+              <div class="exercise-params">
+                <span class="param">{{ exercise.sets }} serie</span>
+                <span class="param">{{ exercise.reps }} powtórzeń</span>
+                <span class="param" *ngIf="exercise.weight">{{ exercise.weight }} kg</span>
+                <span class="param">{{ exercise.restTime }}s przerwy</span>
+              </div>
+              <p *ngIf="exercise.notes" class="exercise-notes">💡 {{ exercise.notes }}</p>
+
+              <div class="exercise-muscles" *ngIf="exercise.exercise?.muscleGroups">
+                <small>Partie: {{ exercise.exercise?.muscleGroups?.join(', ') || 'Brak danych' }}</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="plan-actions">
+        <button class="btn-edit" (click)="openEditPlanModal(selectedPlan!)">
+          ✏️ Edytuj plan
+        </button>
+        <button class="btn-assign" (click)="openAssignModal(selectedPlan!)">
+          👥 Przypisz klientom
+        </button>
+        <button class="btn-duplicate" (click)="duplicatePlan(selectedPlan!)">
+          📋 Duplikuj plan
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Assign to Clients Modal -->
+<div class="modal-overlay" *ngIf="showAssignModal" (click)="closeModals()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Przypisz plan: {{ selectedPlan?.name }}</h3>
+      <button class="close-btn" (click)="closeModals()">✕</button>
+    </div>
+
+    <div class="assign-content">
+      <p>Wybierz klientów, którym chcesz przypisać ten plan treningowy:</p>
+
+      <div class="clients-list">
+        <label
+          *ngFor="let client of clients"
+          class="client-item"
+        >
+          <input
+            type="checkbox"
+            [checked]="selectedClients.includes(client.id)"
+            (change)="toggleClientSelection(client.id)"
+          />
+          <div class="client-info">
+            <h5>{{ client.name }}</h5>
+            <p>{{ client.email }}</p>
+          </div>
+          <div class="assignment-status" *ngIf="selectedPlan?.clientAssignments?.includes(client.id)">
+            <span class="status-assigned">✓ Przypisany</span>
+          </div>
+        </label>
+      </div>
+
+      <div class="assign-actions">
+        <button type="button" class="btn-cancel" (click)="closeModals()">
+          Anuluj
+        </button>
+        <button
+          type="button"
+          class="btn-save"
+          (click)="assignPlanToClients()"
+          [disabled]="selectedClients.length === 0"
+        >
+          Przypisz do {{ selectedClients.length }} klientów
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

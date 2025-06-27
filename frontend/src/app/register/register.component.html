@@ -1,0 +1,385 @@
+<div class="register-container">
+  <div class="background-shapes">
+    <div class="shape1"></div>
+    <div class="shape2"></div>
+    <div class="shape3"></div>
+  </div>
+
+  <div class="register-card" *ngIf="!registerSuccess">
+    <div class="header">
+      <div class="logo">
+        <div class="logo-icon">💪</div>
+        <div class="logo-text">
+          <h1>GymBucket</h1>
+          <p>System zarządzania dla trenerów</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress Indicator -->
+    <div class="progress-container">
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="(currentStep / totalSteps) * 100"></div>
+      </div>
+      <div class="step-indicators">
+        <div
+          *ngFor="let step of [1, 2, 3]; let i = index"
+          [class]="'step-indicator ' + (currentStep > step ? 'completed' : currentStep === step ? 'active' : 'pending')"
+          (click)="goToStep(step)"
+        >
+          <span *ngIf="currentStep > step">✓</span>
+          <span *ngIf="currentStep <= step">{{ step }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-header">
+      <h2>{{ getStepTitle() }}</h2>
+      <p>{{ getStepDescription() }}</p>
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="form">
+
+      <!-- Step 1: Basic Information -->
+      <div *ngIf="currentStep === 1" class="step-content">
+        <div class="form-row">
+          <div class="input-group">
+            <label for="firstName" class="label">Imię *</label>
+            <div class="input-wrapper">
+              <span class="input-icon">👤</span>
+              <input
+                id="firstName"
+                type="text"
+                placeholder="Wprowadź swoje imię"
+                formControlName="firstName"
+                [class]="'input ' +
+                  (hasError('firstName') ? 'input-error' : '') +
+                  (isFieldValid('firstName') ? ' input-valid' : '')"
+              />
+              <span *ngIf="isFieldValid('firstName')" class="valid-icon">✅</span>
+            </div>
+            <span *ngIf="hasError('firstName')" class="error-message">
+              {{ getErrorMessage('firstName') }}
+            </span>
+          </div>
+
+          <div class="input-group">
+            <label for="lastName" class="label">Nazwisko *</label>
+            <div class="input-wrapper">
+              <span class="input-icon">👤</span>
+              <input
+                id="lastName"
+                type="text"
+                placeholder="Wprowadź swoje nazwisko"
+                formControlName="lastName"
+                [class]="'input ' +
+                  (hasError('lastName') ? 'input-error' : '') +
+                  (isFieldValid('lastName') ? ' input-valid' : '')"
+              />
+              <span *ngIf="isFieldValid('lastName')" class="valid-icon">✅</span>
+            </div>
+            <span *ngIf="hasError('lastName')" class="error-message">
+              {{ getErrorMessage('lastName') }}
+            </span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label for="email" class="label">Adres Email *</label>
+          <div class="input-wrapper">
+            <span class="input-icon">📧</span>
+            <input
+              id="email"
+              type="email"
+              placeholder="Wprowadź swój email"
+              formControlName="email"
+              [class]="'input ' +
+                (hasError('email') || emailExists ? 'input-error' : '') +
+                (isFieldValid('email') && !emailExists ? ' input-valid' : '')"
+            />
+            <span *ngIf="checkingEmail" class="loading-icon">⏳</span>
+            <span *ngIf="isFieldValid('email') && !emailExists && !checkingEmail" class="valid-icon">✅</span>
+            <span *ngIf="emailExists" class="error-icon">❌</span>
+          </div>
+          <span *ngIf="hasError('email')" class="error-message">
+            {{ getErrorMessage('email') }}
+          </span>
+          <span *ngIf="emailExists" class="error-message">
+            Ten email jest już zarejestrowany w systemie
+          </span>
+        </div>
+
+        <div class="input-group">
+          <label for="phone" class="label">Numer telefonu</label>
+          <div class="input-wrapper">
+            <span class="input-icon">📱</span>
+            <input
+              id="phone"
+              type="tel"
+              placeholder="+48 123 456 789"
+              formControlName="phone"
+              [class]="'input ' +
+                (hasError('phone') ? 'input-error' : '') +
+                (isFieldValid('phone') ? ' input-valid' : '')"
+            />
+            <span *ngIf="isFieldValid('phone')" class="valid-icon">✅</span>
+          </div>
+          <span *ngIf="hasError('phone')" class="error-message">
+            {{ getErrorMessage('phone') }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Step 2: Password -->
+      <div *ngIf="currentStep === 2" class="step-content">
+        <div class="input-group">
+          <label for="password" class="label">Hasło *</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🔒</span>
+            <input
+              id="password"
+              [type]="showPassword ? 'text' : 'password'"
+              placeholder="Wprowadź bezpieczne hasło"
+              formControlName="password"
+              [class]="'input ' +
+                (hasError('password') ? 'input-error' : '') +
+                (isFieldValid('password') ? ' input-valid' : '')"
+            />
+            <button
+              type="button"
+              class="password-toggle"
+              (click)="togglePasswordVisibility()"
+            >
+              {{ showPassword ? '🙈' : '👁️' }}
+            </button>
+            <span *ngIf="isFieldValid('password')" class="valid-icon">✅</span>
+          </div>
+
+          <!-- Password Strength Indicator -->
+          <div *ngIf="registerForm.get('password')?.value" class="password-strength">
+            <div class="strength-bar">
+              <div
+                [class]="'strength-fill ' + getPasswordStrengthClass()"
+                [style.width.%]="(passwordStrength.score / 6) * 100"
+              ></div>
+            </div>
+            <span [class]="'strength-text ' + getPasswordStrengthClass()">
+              {{ passwordStrength.feedback }}
+            </span>
+          </div>
+
+          <!-- Password Requirements -->
+          <div class="password-requirements">
+            <h5>Hasło musi zawierać:</h5>
+            <ul>
+              <li [class]="registerForm.get('password')?.value?.length >= 8 ? 'valid' : 'invalid'">
+                Co najmniej 8 znaków
+              </li>
+              <li [class]="/[A-Z]/.test(registerForm.get('password')?.value) ? 'valid' : 'invalid'">
+                Wielką literę (A-Z)
+              </li>
+              <li [class]="/[a-z]/.test(registerForm.get('password')?.value) ? 'valid' : 'invalid'">
+                Małą literę (a-z)
+              </li>
+              <li [class]="/[0-9]/.test(registerForm.get('password')?.value) ? 'valid' : 'invalid'">
+                Cyfrę (0-9)
+              </li>
+              <li [class]="/[!@#$%^&*(),.?\":{}|<>]/.test(registerForm.get('password')?.value) ? 'valid' : 'invalid'">
+              Znak specjalny (!@#$%^&*)
+              </li>
+            </ul>
+          </div>
+
+          <span *ngIf="hasError('password')" class="error-message">
+            {{ getErrorMessage('password') }}
+          </span>
+        </div>
+
+        <div class="input-group">
+          <label for="confirmPassword" class="label">Powtórz hasło *</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🔒</span>
+            <input
+              id="confirmPassword"
+              [type]="showConfirmPassword ? 'text' : 'password'"
+              placeholder="Powtórz hasło"
+              formControlName="confirmPassword"
+              [class]="'input ' +
+                (hasError('confirmPassword') || hasFormError('passwordMismatch') ? 'input-error' : '') +
+                (isFieldValid('confirmPassword') && !hasFormError('passwordMismatch') ? ' input-valid' : '')"
+            />
+            <button
+              type="button"
+              class="password-toggle"
+              (click)="toggleConfirmPasswordVisibility()"
+            >
+              {{ showConfirmPassword ? '🙈' : '👁️' }}
+            </button>
+            <span *ngIf="isFieldValid('confirmPassword') && !hasFormError('passwordMismatch')" class="valid-icon">✅</span>
+          </div>
+          <span *ngIf="hasError('confirmPassword')" class="error-message">
+            {{ getErrorMessage('confirmPassword') }}
+          </span>
+          <span *ngIf="hasFormError('passwordMismatch')" class="error-message">
+            Hasła muszą być identyczne
+          </span>
+        </div>
+      </div>
+
+      <!-- Step 3: Professional Info & Terms -->
+      <div *ngIf="currentStep === 3" class="step-content">
+        <div class="input-group">
+          <label class="label">Specjalizacje</label>
+          <p class="field-description">Wybierz obszary, w których się specjalizujesz</p>
+          <div class="specializations-grid">
+            <label
+              *ngFor="let spec of availableSpecializations"
+              class="specialization-item"
+              [class.selected]="isSpecializationSelected(spec)"
+            >
+              <input
+                type="checkbox"
+                [checked]="isSpecializationSelected(spec)"
+                (change)="toggleSpecialization(spec)"
+              />
+              <span class="checkmark"></span>
+              <span class="spec-text">{{ spec }}</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="input-group">
+            <label for="experience" class="label">Doświadczenie (lata)</label>
+            <div class="input-wrapper">
+              <span class="input-icon">📈</span>
+              <input
+                id="experience"
+                type="number"
+                placeholder="0"
+                min="0"
+                max="50"
+                formControlName="experience"
+                [class]="'input ' +
+                  (hasError('experience') ? 'input-error' : '') +
+                  (isFieldValid('experience') ? ' input-valid' : '')"
+              />
+            </div>
+            <span *ngIf="hasError('experience')" class="error-message">
+              {{ getErrorMessage('experience') }}
+            </span>
+          </div>
+
+          <div class="input-group">
+            <label for="certification" class="label">Certyfikaty</label>
+            <div class="input-wrapper">
+              <span class="input-icon">🏆</span>
+              <input
+                id="certification"
+                type="text"
+                placeholder="np. ACE, NASM, ACSM"
+                formControlName="certification"
+                class="input"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="terms-section">
+          <label class="terms-checkbox">
+            <input
+              type="checkbox"
+              formControlName="acceptTerms"
+              [class]="hasError('acceptTerms') ? 'error' : ''"
+            />
+            <span class="checkmark"></span>
+            <span class="terms-text">
+              Akceptuję
+              <a href="#" class="terms-link">Regulamin</a>
+              i
+              <a href="#" class="terms-link">Politykę Prywatności</a>
+            </span>
+          </label>
+          <span *ngIf="hasError('acceptTerms')" class="error-message">
+            {{ getErrorMessage('acceptTerms') }}
+          </span>
+
+          <label class="terms-checkbox">
+            <input type="checkbox" formControlName="acceptNewsletter" />
+            <span class="checkmark"></span>
+            <span class="terms-text">
+              Chcę otrzymywać newsletter z poradami treningowymi i nowościami
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Global Error -->
+      <div *ngIf="registerError" class="error-alert">
+        {{ registerError }}
+      </div>
+
+      <!-- Navigation Buttons -->
+      <div class="form-navigation">
+        <button
+          *ngIf="currentStep > 1"
+          type="button"
+          class="nav-button prev-button"
+          (click)="prevStep()"
+        >
+          ← Poprzedni krok
+        </button>
+
+        <button
+          *ngIf="currentStep < totalSteps"
+          type="button"
+          class="nav-button next-button"
+          (click)="nextStep()"
+        >
+          Następny krok →
+        </button>
+
+        <button
+          *ngIf="currentStep === totalSteps"
+          type="submit"
+          [disabled]="isLoading || registerForm.invalid || emailExists"
+          [class]="'submit-button ' + (isLoading ? 'loading' : '')"
+        >
+          <span *ngIf="isLoading" class="loading-spinner"></span>
+          <span *ngIf="!isLoading">
+            Utwórz konto
+            <span class="arrow">→</span>
+          </span>
+        </button>
+      </div>
+    </form>
+
+    <div class="footer">
+      <p>
+        Masz już konto?
+        <button type="button" class="login-link" (click)="goToLogin()">
+          Zaloguj się
+        </button>
+      </p>
+    </div>
+  </div>
+
+  <!-- Success State -->
+  <div class="success-card" *ngIf="registerSuccess">
+    <div class="success-icon">🎉</div>
+    <h2>Konto zostało utworzone!</h2>
+    <p>Sprawdź swoją skrzynkę email i kliknij w link aktywacyjny, aby aktywować konto.</p>
+    <div class="success-actions">
+      <button class="primary-button" (click)="goToLogin()">
+        Przejdź do logowania
+      </button>
+    </div>
+    <div class="success-note">
+      <p>
+        <strong>Nie otrzymałeś emaila?</strong><br>
+        Sprawdź folder spam lub
+        <a href="#" class="resend-link">wyślij ponownie</a>
+      </p>
+    </div>
+  </div>
+</div>
