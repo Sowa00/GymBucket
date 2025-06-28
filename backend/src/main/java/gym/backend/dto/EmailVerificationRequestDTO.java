@@ -1,0 +1,20 @@
+package gym.backend.dto;
+
+public class EmailVerificationRequestDTO {
+    private String token;
+
+    public EmailVerificationRequestDTO() {
+    }
+
+    public EmailVerificationRequestDTO(String token) {
+        this.token = token;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+}

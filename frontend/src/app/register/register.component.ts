@@ -2,6 +2,7 @@ import { Component, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms'; // Dodaj FormsModule
 import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
 import { AuthService, RegisterRequest } from '../services/auth.service';
 
@@ -59,12 +60,12 @@ export function phoneValidator(control: AbstractControl): ValidationErrors | nul
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, FormsModule], // Dodaj FormsModule
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css']
 })
 export class RegisterComponent implements OnDestroy {
-  registerForm: FormGroup | undefined;
+  registerForm!: FormGroup; // Używamy definite assignment operator
   currentStep = 1;
   totalSteps = 3;
   showPassword = false;
@@ -441,6 +442,25 @@ export class RegisterComponent implements OnDestroy {
     if (score <= 4) return 'medium';
     if (score <= 5) return 'strong';
     return 'very-strong';
+  }
+
+  getPasswordValidationClass(type: string): string {
+    const password = this.registerForm.get('password')?.value || '';
+
+    switch (type) {
+      case 'length':
+        return password.length >= 8 ? 'valid' : 'invalid';
+      case 'uppercase':
+        return /[A-Z]/.test(password) ? 'valid' : 'invalid';
+      case 'lowercase':
+        return /[a-z]/.test(password) ? 'valid' : 'invalid';
+      case 'number':
+        return /[0-9]/.test(password) ? 'valid' : 'invalid';
+      case 'special':
+        return /[!@#$%^&*(),.?":{}|<>]/.test(password) ? 'valid' : 'invalid';
+      default:
+        return 'invalid';
+    }
   }
 
   getStepTitle(): string {

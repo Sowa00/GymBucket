@@ -2,13 +2,14 @@ import { Component, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms'; // Dodaj FormsModule dla ngModel
 import { Subject, takeUntil } from 'rxjs';
 import { AuthService, LoginRequest } from '../services/auth.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, FormsModule], // Dodaj FormsModule
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })

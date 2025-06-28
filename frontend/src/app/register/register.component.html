@@ -130,6 +130,7 @@
         </div>
       </div>
 
+
       <!-- Step 2: Password -->
       <div *ngIf="currentStep === 2" class="step-content">
         <div class="input-group">
@@ -172,20 +173,20 @@
           <div class="password-requirements">
             <h5>Hasło musi zawierać:</h5>
             <ul>
-              <li [class]="registerForm.get('password')?.value?.length >= 8 ? 'valid' : 'invalid'">
+              <li [class]="getPasswordValidationClass('length')">
                 Co najmniej 8 znaków
               </li>
-              <li [class]="/[A-Z]/.test(registerForm.get('password')?.value) ? 'valid' : 'invalid'">
+              <li [class]="getPasswordValidationClass('uppercase')">
                 Wielką literę (A-Z)
               </li>
-              <li [class]="/[a-z]/.test(registerForm.get('password')?.value) ? 'valid' : 'invalid'">
+              <li [class]="getPasswordValidationClass('lowercase')">
                 Małą literę (a-z)
               </li>
-              <li [class]="/[0-9]/.test(registerForm.get('password')?.value) ? 'valid' : 'invalid'">
+              <li [class]="getPasswordValidationClass('number')">
                 Cyfrę (0-9)
               </li>
-              <li [class]="/[!@#$%^&*(),.?\":{}|<>]/.test(registerForm.get('password')?.value) ? 'valid' : 'invalid'">
-              Znak specjalny (!@#$%^&*)
+              <li [class]="getPasswordValidationClass('special')">
+                Znak specjalny (!&#64;#$%^&*)
               </li>
             </ul>
           </div>
@@ -194,6 +195,37 @@
             {{ getErrorMessage('password') }}
           </span>
         </div>
+
+        <div class="input-group">
+          <label for="confirmPassword" class="label">Powtórz hasło *</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🔒</span>
+            <input
+              id="confirmPassword"
+              [type]="showConfirmPassword ? 'text' : 'password'"
+              placeholder="Powtórz hasło"
+              formControlName="confirmPassword"
+              [class]="'input ' +
+                (hasError('confirmPassword') || hasFormError('passwordMismatch') ? 'input-error' : '') +
+                (isFieldValid('confirmPassword') && !hasFormError('passwordMismatch') ? ' input-valid' : '')"
+            />
+            <button
+              type="button"
+              class="password-toggle"
+              (click)="toggleConfirmPasswordVisibility()"
+            >
+              {{ showConfirmPassword ? '🙈' : '👁️' }}
+            </button>
+            <span *ngIf="isFieldValid('confirmPassword') && !hasFormError('passwordMismatch')" class="valid-icon">✅</span>
+          </div>
+          <span *ngIf="hasError('confirmPassword')" class="error-message">
+            {{ getErrorMessage('confirmPassword') }}
+          </span>
+          <span *ngIf="hasFormError('passwordMismatch')" class="error-message">
+            Hasła muszą być identyczne
+          </span>
+        </div>
+      </div>
 
         <div class="input-group">
           <label for="confirmPassword" class="label">Powtórz hasło *</label>

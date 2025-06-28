@@ -75,7 +75,7 @@ export interface ApiError {
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly API_URL = 'https://api.gymbucket.com'; // Replace with your API URL
+  private readonly API_URL = 'http://localhost:8080/api'; // Poprawiony URL na backend
   private readonly TOKEN_KEY = 'gymbucket_token';
   private readonly REFRESH_TOKEN_KEY = 'gymbucket_refresh_token';
   private readonly USER_KEY = 'gymbucket_user';
