@@ -130,7 +130,6 @@
         </div>
       </div>
 
-
       <!-- Step 2: Password -->
       <div *ngIf="currentStep === 2" class="step-content">
         <div class="input-group">
@@ -195,37 +194,6 @@
             {{ getErrorMessage('password') }}
           </span>
         </div>
-
-        <div class="input-group">
-          <label for="confirmPassword" class="label">Powtórz hasło *</label>
-          <div class="input-wrapper">
-            <span class="input-icon">🔒</span>
-            <input
-              id="confirmPassword"
-              [type]="showConfirmPassword ? 'text' : 'password'"
-              placeholder="Powtórz hasło"
-              formControlName="confirmPassword"
-              [class]="'input ' +
-                (hasError('confirmPassword') || hasFormError('passwordMismatch') ? 'input-error' : '') +
-                (isFieldValid('confirmPassword') && !hasFormError('passwordMismatch') ? ' input-valid' : '')"
-            />
-            <button
-              type="button"
-              class="password-toggle"
-              (click)="toggleConfirmPasswordVisibility()"
-            >
-              {{ showConfirmPassword ? '🙈' : '👁️' }}
-            </button>
-            <span *ngIf="isFieldValid('confirmPassword') && !hasFormError('passwordMismatch')" class="valid-icon">✅</span>
-          </div>
-          <span *ngIf="hasError('confirmPassword')" class="error-message">
-            {{ getErrorMessage('confirmPassword') }}
-          </span>
-          <span *ngIf="hasFormError('passwordMismatch')" class="error-message">
-            Hasła muszą być identyczne
-          </span>
-        </div>
-      </div>
 
         <div class="input-group">
           <label for="confirmPassword" class="label">Powtórz hasło *</label>
