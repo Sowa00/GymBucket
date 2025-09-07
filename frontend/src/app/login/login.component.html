@@ -81,6 +81,11 @@
             Zapomniałeś hasła?
           </button>
         </div>
+        <div >
+          <button type="button" class="register" (click)="goToRegister()">
+            Nie masz konta? Zarejestruj się
+          </button>
+        </div>
 
         <div *ngIf="loginError" class="error-alert">
           {{ loginError }}

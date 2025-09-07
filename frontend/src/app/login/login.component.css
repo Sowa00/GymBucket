@@ -311,8 +311,20 @@
   cursor: pointer;
   transition: color 0.2s ease;
 }
+.register {
+  background: none;
+  border: none;
+  color: #6366f1;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
 
 .forgot-password:hover {
+  color: #ec4899;
+}
+
+.register:hover {
   color: #ec4899;
 }
 

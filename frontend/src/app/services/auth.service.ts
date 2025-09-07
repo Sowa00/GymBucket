@@ -134,17 +134,14 @@ export class AuthService {
 
   // Register method
   register(userData: RegisterRequest): Observable<RegisterResponse> {
-    // Mock implementation - replace with real API call
-    return this.mockRegister(userData).pipe(
+    return this.http.post<RegisterResponse>(
+      `${this.API_URL}/auth/register`,
+      userData
+    ).pipe(
       catchError(this.handleError)
     );
-
-    // Real API implementation:
-    // return this.http.post<RegisterResponse>(`${this.API_URL}/auth/register`, userData)
-    //   .pipe(
-    //     catchError(this.handleError)
-    //   );
   }
+
 
   // Logout method
   logout(): void {
