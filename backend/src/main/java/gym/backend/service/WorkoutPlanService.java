@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -164,6 +165,9 @@ public class WorkoutPlanService {
         workoutPlan.setCreatedAt(LocalDateTime.now());
         workoutPlan.setUpdatedAt(LocalDateTime.now());
         
+        // Initialize the exercises list
+        workoutPlan.setExercises(new ArrayList<>());
+        
         // Add exercises to the workout plan
         if (workoutPlanRequest.getExercises() != null && !workoutPlanRequest.getExercises().isEmpty()) {
             for (WorkoutPlanRequestDTO.ExerciseInPlanRequest exerciseRequest : workoutPlanRequest.getExercises()) {
@@ -171,6 +175,7 @@ public class WorkoutPlanService {
                         .orElseThrow(() -> new IllegalArgumentException("Exercise not found with ID: " + exerciseRequest.getExerciseId()));
                 
                 WorkoutPlanExercise exerciseInPlan = new WorkoutPlanExercise();
+                exerciseInPlan.setWorkoutPlan(workoutPlan);
                 exerciseInPlan.setExercise(exercise);
                 exerciseInPlan.setSets(exerciseRequest.getSets());
                 exerciseInPlan.setReps(exerciseRequest.getReps());
@@ -209,14 +214,19 @@ public class WorkoutPlanService {
                     workoutPlan.setIsPublic(workoutPlanRequest.getIsPublic() != null ? workoutPlanRequest.getIsPublic() : false);
                     workoutPlan.setUpdatedAt(LocalDateTime.now());
                     
-                    // Clear existing exercises and add new ones
-                    workoutPlan.getExercises().clear();
+                    // Clear existing exercises (orphanRemoval will handle deletion)
+                    if (workoutPlan.getExercises() != null) {
+                        workoutPlan.getExercises().clear();
+                    }
+                    
+                    // Add new exercises
                     if (workoutPlanRequest.getExercises() != null && !workoutPlanRequest.getExercises().isEmpty()) {
                         for (WorkoutPlanRequestDTO.ExerciseInPlanRequest exerciseRequest : workoutPlanRequest.getExercises()) {
                             Exercise exercise = exerciseRepository.findById(exerciseRequest.getExerciseId())
                                     .orElseThrow(() -> new IllegalArgumentException("Exercise not found with ID: " + exerciseRequest.getExerciseId()));
                             
                             WorkoutPlanExercise exerciseInPlan = new WorkoutPlanExercise();
+                            exerciseInPlan.setWorkoutPlan(workoutPlan);
                             exerciseInPlan.setExercise(exercise);
                             exerciseInPlan.setSets(exerciseRequest.getSets());
                             exerciseInPlan.setReps(exerciseRequest.getReps());
@@ -274,9 +284,13 @@ public class WorkoutPlanService {
                     duplicatedPlan.setCreatedAt(LocalDateTime.now());
                     duplicatedPlan.setUpdatedAt(LocalDateTime.now());
                     
+                    // Initialize the exercises list
+                    duplicatedPlan.setExercises(new ArrayList<>());
+                    
                     // Copy exercises
                     for (WorkoutPlanExercise originalExercise : originalPlan.getExercises()) {
                         WorkoutPlanExercise duplicatedExercise = new WorkoutPlanExercise();
+                        duplicatedExercise.setWorkoutPlan(duplicatedPlan);
                         duplicatedExercise.setExercise(originalExercise.getExercise());
                         duplicatedExercise.setSets(originalExercise.getSets());
                         duplicatedExercise.setReps(originalExercise.getReps());
@@ -375,10 +389,10 @@ public class WorkoutPlanService {
     // Get current user
     private User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof org.springframework.security.core.userdetails.UserDetails) {
-            String email = authentication.getName();
+        if (authentication != null && authentication.getPrincipal() instanceof String) {
+            String email = (String) authentication.getPrincipal();
             return userRepository.findByEmail(email)
-                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                    .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
         }
         throw new IllegalArgumentException("User not authenticated");
     }

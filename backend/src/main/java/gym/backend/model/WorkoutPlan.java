@@ -48,7 +48,7 @@ public class WorkoutPlan {
     @Column(name = "tag", length = 50)
     private Set<String> tags;
 
-    @OneToMany(mappedBy = "workoutPlan", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "workoutPlan", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @OrderBy("orderIndex ASC")
     private List<WorkoutPlanExercise> exercises;
 
