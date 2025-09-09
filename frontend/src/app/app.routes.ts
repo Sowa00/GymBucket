@@ -4,6 +4,8 @@ import { RegisterComponent } from './register/register.component';
 import { HomepageComponent } from './homepage/homepage.component';
 import { CalendarComponent } from './calendar/calendar.component';
 import { WorkoutPlansComponent } from './workout-plans/workout-plans.component';
+import { ClientsComponent } from './clients/clients.component';
+import { NutritionPlansComponent } from './nutrition-plans/nutrition-plans.component';
 // import { AuthGuard, GuestGuard, RoleGuard } from './guards/auth.guard'; // Tymczasowo wyłączone
 
 export const routes: Routes = [
@@ -35,6 +37,16 @@ export const routes: Routes = [
   {
     path: 'workout-plans',
     component: WorkoutPlansComponent
+    // canActivate: [AuthGuard] // Tymczasowo wyłączone
+  },
+  {
+    path: 'clients',
+    component: ClientsComponent
+    // canActivate: [AuthGuard] // Tymczasowo wyłączone
+  },
+  {
+    path: 'nutrition-plans',
+    component: NutritionPlansComponent
     // canActivate: [AuthGuard] // Tymczasowo wyłączone
   },
   {

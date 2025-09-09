@@ -249,6 +249,13 @@
 
   <!-- Exercises Tab Content -->
   <div class="tab-content" *ngIf="activeTab === 'exercises'">
+    <div class="exercises-header">
+      <h3>Ćwiczenia</h3>
+      <button class="create-btn" (click)="openCreateExerciseModal()">
+        <span>➕</span>
+        Dodaj Ćwiczenie
+      </button>
+    </div>
     <div class="exercises-grid">
       <div
         *ngFor="let exercise of filteredExercises"
@@ -766,5 +773,139 @@
         </button>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- Create Exercise Modal -->
+<div class="modal-overlay" *ngIf="showCreateExerciseModal" (click)="closeModals()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Dodaj Nowe Ćwiczenie</h3>
+      <button class="close-btn" (click)="closeModals()">✕</button>
+    </div>
+
+    <form class="exercise-form" (ngSubmit)="saveExercise()">
+      <div class="form-group">
+        <label for="exerciseName">Nazwa ćwiczenia *</label>
+        <input
+          type="text"
+          id="exerciseName"
+          [(ngModel)]="newExerciseForm.name"
+          name="exerciseName"
+          required
+          placeholder="np. Przysiady ze sztangą"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="exerciseDescription">Opis</label>
+        <textarea
+          id="exerciseDescription"
+          [(ngModel)]="newExerciseForm.description"
+          name="exerciseDescription"
+          rows="3"
+          placeholder="Krótki opis ćwiczenia..."
+        ></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="exerciseCategory">Kategoria *</label>
+          <select
+            id="exerciseCategory"
+            [(ngModel)]="newExerciseForm.category"
+            name="exerciseCategory"
+            required
+          >
+            <option value="STRENGTH">Siłowy</option>
+            <option value="CARDIO">Kardio</option>
+            <option value="FLEXIBILITY">Rozciąganie</option>
+            <option value="BALANCE">Równowaga</option>
+            <option value="FUNCTIONAL">Funkcjonalny</option>
+            <option value="SPORTS">Sportowy</option>
+            <option value="REHABILITATION">Rehabilitacyjny</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="exerciseDifficulty">Poziom trudności *</label>
+          <select
+            id="exerciseDifficulty"
+            [(ngModel)]="newExerciseForm.difficulty"
+            name="exerciseDifficulty"
+            required
+          >
+            <option value="BEGINNER">Początkujący</option>
+            <option value="INTERMEDIATE">Średniozaawansowany</option>
+            <option value="ADVANCED">Zaawansowany</option>
+            <option value="EXPERT">Ekspert</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="exerciseMuscleGroups">Partie mięśniowe (oddzielone przecinkami)</label>
+        <input
+          type="text"
+          id="exerciseMuscleGroups"
+          [(ngModel)]="muscleGroupsText"
+          name="exerciseMuscleGroups"
+          placeholder="np. Nogi, Pośladki, Core"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="exerciseEquipment">Sprzęt (oddzielony przecinkami)</label>
+        <input
+          type="text"
+          id="exerciseEquipment"
+          [(ngModel)]="equipmentText"
+          name="exerciseEquipment"
+          placeholder="np. Sztanga, Hantle"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="exerciseInstructions">Instrukcje wykonania</label>
+        <textarea
+          id="exerciseInstructions"
+          [(ngModel)]="newExerciseForm.instructions"
+          name="exerciseInstructions"
+          rows="4"
+          placeholder="Szczegółowe instrukcje jak wykonać ćwiczenie..."
+        ></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="exerciseTips">Wskazówki</label>
+        <textarea
+          id="exerciseTips"
+          [(ngModel)]="newExerciseForm.tips"
+          name="exerciseTips"
+          rows="2"
+          placeholder="Dodatkowe wskazówki..."
+        ></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="exerciseWarnings">Ostrzeżenia</label>
+        <textarea
+          id="exerciseWarnings"
+          [(ngModel)]="newExerciseForm.warnings"
+          name="exerciseWarnings"
+          rows="2"
+          placeholder="Ostrzeżenia i przeciwwskazania..."
+        ></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-cancel" (click)="closeModals()">
+          Anuluj
+        </button>
+        <button type="submit" class="btn-save" [disabled]="isLoading">
+          {{ isLoading ? 'Zapisywanie...' : 'Zapisz Ćwiczenie' }}
+        </button>
+      </div>
+    </form>
   </div>
 </div>

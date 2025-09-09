@@ -1,6 +1,5 @@
 package gym.backend.dto;
 
-import gym.backend.model.Role;
 import java.util.Set;
 
 public class UserResponseDTO {
@@ -8,7 +7,7 @@ public class UserResponseDTO {
     private String email;
     private String firstName;
     private String lastName;
-    private Role role;
+    private String role;
     private Boolean isActive;
     private String avatar;
     private String phone;
@@ -54,11 +53,11 @@ public class UserResponseDTO {
         this.lastName = lastName;
     }
 
-    public Role getRole() {
+    public String getRole() {
         return role;
     }
 
-    public void setRole(Role role) {
+    public void setRole(String role) {
         this.role = role;
     }
 

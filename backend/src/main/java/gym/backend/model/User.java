@@ -21,10 +21,10 @@ public class User {
     @Column(nullable = false, length = 255)
     private String password;
 
-    @Column(nullable = false, length = 50)
+    @Column(name = "firstName", nullable = false, length = 50)
     private String firstName;
 
-    @Column(nullable = false, length = 50)
+    @Column(name = "lastName", nullable = false, length = 50)
     private String lastName;
 
     @Column(length = 20)
@@ -34,19 +34,19 @@ public class User {
     @Column(nullable = false, length = 20)
     private Role role = Role.TRAINER;
 
-    @Column(nullable = false)
+    @Column(name = "isActive", nullable = false)
     private Boolean isActive = true;
 
-    @Column(nullable = false)
+    @Column(name = "isEmailVerified", nullable = false)
     private Boolean isEmailVerified = false;
 
-    @Column(length = 255)
+    @Column(name = "emailVerificationToken", length = 255)
     private String emailVerificationToken;
 
-    @Column(length = 255)
+    @Column(name = "resetPasswordToken", length = 255)
     private String resetPasswordToken;
 
-    @Column
+    @Column(name = "resetPasswordTokenExpiry")
     private LocalDateTime resetPasswordTokenExpiry;
 
     @ElementCollection(fetch = FetchType.LAZY)
@@ -66,14 +66,14 @@ public class User {
     private String avatar;
 
     @CreationTimestamp
-    @Column(nullable = false, updatable = false)
+    @Column(name = "createdAt", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    @Column(nullable = false)
+    @Column(name = "updatedAt", nullable = false)
     private LocalDateTime updatedAt;
 
-    @Column
+    @Column(name = "lastLogin")
     private LocalDateTime lastLogin;
 
     // Constructors

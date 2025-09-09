@@ -1,0 +1,365 @@
+<div class="clients-container">
+  <!-- Header -->
+  <div class="clients-header">
+    <div class="clients-title">
+      <div class="title-with-back">
+        <button class="back-btn" (click)="goBack()" title="Powrót do dashboard">
+          <span>←</span>
+        </button>
+        <div>
+          <h2>Klienci</h2>
+          <p>Zarządzaj swoimi klientami</p>
+        </div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="search-wrapper">
+        <span class="search-icon">🔍</span>
+        <input 
+          type="text" 
+          placeholder="Szukaj klientów..." 
+          [(ngModel)]="searchTerm"
+          (input)="filterClients()"
+          class="search-input"
+        >
+      </div>
+      <button class="add-client-btn" (click)="openAddModal()" [disabled]="isLoading">
+        <span>+</span>
+        <span>Dodaj klienta</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div *ngIf="successMessage" class="success-message">
+    {{ successMessage }}
+  </div>
+  <div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid" *ngIf="!isLoading">
+    <div class="stat-card">
+      <div class="stat-icon">👥</div>
+      <div class="stat-content">
+        <h3>{{ filteredClients.length }}</h3>
+        <p>Aktywni klienci</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">💰</div>
+      <div class="stat-content">
+        <h3>{{ getTotalMonthlyRevenue() | currency:'PLN':'symbol':'1.0-0' }}</h3>
+        <p>Miesięczny przychód</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">✅</div>
+      <div class="stat-content">
+        <h3>{{ getPaidClientsCount() }}</h3>
+        <p>Opłaceni klienci</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">⏰</div>
+      <div class="stat-content">
+        <h3>{{ getPendingClientsCount() }}</h3>
+        <p>Oczekujące płatności</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading">
+    <div class="loading-spinner"></div>
+    <span>Ładowanie klientów...</span>
+  </div>
+
+  <!-- Clients Grid -->
+  <div *ngIf="!isLoading" class="clients-grid">
+    <div *ngIf="filteredClients.length === 0" class="no-clients">
+      <div class="stat-card" style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
+        <div class="stat-icon">👥</div>
+        <div class="stat-content">
+          <h3>Brak klientów</h3>
+          <p>Dodaj pierwszego klienta, aby rozpocząć</p>
+        </div>
+      </div>
+    </div>
+    
+    <div *ngFor="let client of filteredClients" class="client-card">
+      <div class="client-header">
+        <div class="client-avatar">
+          {{ getInitials(client.firstName, client.lastName) }}
+        </div>
+        <div class="client-actions">
+          <button class="action-btn edit-btn" (click)="openEditModal(client)" title="Edytuj">
+            ✏️
+          </button>
+          <button class="action-btn delete-btn" (click)="openDeleteModal(client)" title="Usuń">
+            🗑️
+          </button>
+        </div>
+      </div>
+      
+      <div class="client-info">
+        <h3>{{ client.firstName }} {{ client.lastName }}</h3>
+        <div class="client-details">
+          <div *ngIf="client.email" class="client-detail">
+            <span class="client-detail-icon">📧</span>
+            <span>{{ client.email }}</span>
+          </div>
+          <div *ngIf="client.phone" class="client-detail">
+            <span class="client-detail-icon">📞</span>
+            <span>{{ client.phone }}</span>
+          </div>
+          <div *ngIf="client.monthlyFee" class="client-detail">
+            <span class="client-detail-icon">💰</span>
+            <span>{{ client.monthlyFee | currency:'PLN':'symbol':'1.0-0' }}/miesiąc</span>
+          </div>
+        </div>
+        <div class="payment-status" 
+             [class]="'payment-status ' + getPaymentStatusClass(client.paymentStatus || '')">
+          {{ getPaymentStatusLabel(client.paymentStatus || '') }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Client Modal -->
+  <div *ngIf="showAddModal" class="modal-overlay" (click)="closeModals()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Dodaj nowego klienta</h2>
+        <button class="close-btn" (click)="closeModals()">×</button>
+      </div>
+      
+      <div class="modal-content">
+        <form (ngSubmit)="addClient()">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Imię *</label>
+            <input type="text" [(ngModel)]="newClient.firstName" name="firstName" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nazwisko *</label>
+            <input type="text" [(ngModel)]="newClient.lastName" name="lastName" class="form-input" required>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Email *</label>
+            <input type="email" [(ngModel)]="newClient.email" name="email" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Telefon</label>
+            <input type="tel" [(ngModel)]="newClient.phone" name="phone" class="form-input">
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Data urodzenia</label>
+            <input type="date" [(ngModel)]="newClient.dateOfBirth" name="dateOfBirth">
+          </div>
+          <div class="form-group">
+            <label>Płeć</label>
+            <select [(ngModel)]="newClient.gender" name="gender">
+              <option value="">Wybierz płeć</option>
+              <option value="MALE">Mężczyzna</option>
+              <option value="FEMALE">Kobieta</option>
+              <option value="OTHER">Inne</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Wzrost (cm)</label>
+            <input type="number" [(ngModel)]="newClient.height" name="height">
+          </div>
+          <div class="form-group">
+            <label>Waga (kg)</label>
+            <input type="number" [(ngModel)]="newClient.weight" name="weight">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Opłata miesięczna (zł)</label>
+          <input type="number" [(ngModel)]="newClient.monthlyFee" name="monthlyFee">
+        </div>
+        
+        <div class="form-group">
+          <label>Status płatności</label>
+          <select [(ngModel)]="newClient.paymentStatus" name="paymentStatus">
+            <option value="PENDING">Oczekujące</option>
+            <option value="PAID">Opłacone</option>
+            <option value="OVERDUE">Przeterminowane</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Cele fitness</label>
+          <textarea [(ngModel)]="newClient.fitnessGoals" name="fitnessGoals" class="form-textarea" rows="3"></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Uwagi medyczne</label>
+          <textarea [(ngModel)]="newClient.medicalConditions" name="medicalConditions" class="form-textarea" rows="3"></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Notatki</label>
+          <textarea [(ngModel)]="newClient.notes" name="notes" class="form-textarea" rows="3"></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Kontakty awaryjne (jeden na linię)</label>
+          <textarea [(ngModel)]="newClient.emergencyContactsText" name="emergencyContacts" class="form-textarea" rows="3" placeholder="np. Jan Kowalski - 123-456-789&#10;Maria Nowak - 987-654-321"></textarea>
+        </div>
+        
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" (click)="closeModals()">
+            Anuluj
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+            {{ isLoading ? 'Dodawanie...' : 'Dodaj klienta' }}
+          </button>
+        </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Client Modal -->
+  <div *ngIf="showEditModal" class="modal-overlay" (click)="closeModals()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Edytuj klienta</h2>
+        <button class="close-btn" (click)="closeModals()">×</button>
+      </div>
+      
+      <div class="modal-content">
+        <form (ngSubmit)="updateClient()">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Imię *</label>
+            <input type="text" [(ngModel)]="newClient.firstName" name="firstName" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nazwisko *</label>
+            <input type="text" [(ngModel)]="newClient.lastName" name="lastName" class="form-input" required>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Email *</label>
+            <input type="email" [(ngModel)]="newClient.email" name="email" required>
+          </div>
+          <div class="form-group">
+            <label>Telefon</label>
+            <input type="tel" [(ngModel)]="newClient.phone" name="phone">
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Data urodzenia</label>
+            <input type="date" [(ngModel)]="newClient.dateOfBirth" name="dateOfBirth">
+          </div>
+          <div class="form-group">
+            <label>Płeć</label>
+            <select [(ngModel)]="newClient.gender" name="gender">
+              <option value="">Wybierz płeć</option>
+              <option value="MALE">Mężczyzna</option>
+              <option value="FEMALE">Kobieta</option>
+              <option value="OTHER">Inne</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Wzrost (cm)</label>
+            <input type="number" [(ngModel)]="newClient.height" name="height">
+          </div>
+          <div class="form-group">
+            <label>Waga (kg)</label>
+            <input type="number" [(ngModel)]="newClient.weight" name="weight">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Opłata miesięczna (zł)</label>
+          <input type="number" [(ngModel)]="newClient.monthlyFee" name="monthlyFee">
+        </div>
+        
+        <div class="form-group">
+          <label>Status płatności</label>
+          <select [(ngModel)]="newClient.paymentStatus" name="paymentStatus">
+            <option value="PENDING">Oczekujące</option>
+            <option value="PAID">Opłacone</option>
+            <option value="OVERDUE">Przeterminowane</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>Cele fitness</label>
+          <textarea [(ngModel)]="newClient.fitnessGoals" name="fitnessGoals" rows="3"></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label>Uwagi medyczne</label>
+          <textarea [(ngModel)]="newClient.medicalConditions" name="medicalConditions" rows="3"></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Notatki</label>
+          <textarea [(ngModel)]="newClient.notes" name="notes" class="form-textarea" rows="3"></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Kontakty awaryjne (jeden na linię)</label>
+          <textarea [(ngModel)]="newClient.emergencyContactsText" name="emergencyContacts" class="form-textarea" rows="3" placeholder="np. Jan Kowalski - 123-456-789&#10;Maria Nowak - 987-654-321"></textarea>
+        </div>
+        
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" (click)="closeModals()">
+            Anuluj
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+            {{ isLoading ? 'Aktualizowanie...' : 'Zaktualizuj klienta' }}
+          </button>
+        </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div *ngIf="showDeleteModal" class="modal-overlay" (click)="closeModals()">
+    <div class="modal delete-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Potwierdź usunięcie</h2>
+        <button class="close-btn" (click)="closeModals()">×</button>
+      </div>
+      
+      <div class="modal-content">
+        <p>Czy na pewno chcesz usunąć klienta <strong>{{ selectedClient?.firstName }} {{ selectedClient?.lastName }}</strong>?</p>
+        <p class="warning">Ta operacja nie może zostać cofnięta.</p>
+      </div>
+      
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" (click)="closeModals()">
+          Anuluj
+        </button>
+        <button type="button" class="btn-delete" (click)="deleteClient()" [disabled]="isLoading">
+          {{ isLoading ? 'Usuwanie...' : 'Usuń klienta' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

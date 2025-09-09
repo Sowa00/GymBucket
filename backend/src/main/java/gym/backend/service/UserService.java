@@ -115,7 +115,14 @@ public class UserService {
 
         User user = getUserByEmail(loginDTO.getEmail());
 
-        if (!passwordEncoder.matches(loginDTO.getPassword(), user.getPassword())) {
+        // Debug logging
+        logger.info("Login attempt - Email: {}, Password: {}, Stored Hash: {}", 
+                   loginDTO.getEmail(), loginDTO.getPassword(), user.getPassword());
+        
+        boolean passwordMatches = passwordEncoder.matches(loginDTO.getPassword(), user.getPassword());
+        logger.info("Password matches: {}", passwordMatches);
+
+        if (!passwordMatches) {
             throw new IllegalArgumentException("Nieprawidłowy email lub hasło");
         }
 
@@ -304,7 +311,7 @@ public class UserService {
         dto.setEmail(user.getEmail());
         dto.setFirstName(user.getFirstName());
         dto.setLastName(user.getLastName());
-        dto.setRole(user.getRole());
+        dto.setRole(user.getRole().getValue()); // Fixed: send string value instead of enum
         dto.setIsActive(user.getIsActive());
         dto.setAvatar(user.getAvatar());
         dto.setPhone(user.getPhone());

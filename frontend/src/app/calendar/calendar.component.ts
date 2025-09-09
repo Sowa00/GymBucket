@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { TrainingSessionService, TrainingSession, TrainingSessionRequest } from '../services/training-session.service';
+import { ClientService } from '../services/client.service';
 
 interface Training {
   id: string;
@@ -82,49 +84,8 @@ export class CalendarComponent implements OnInit {
   selectedDurationOption = 60;
   validationErrors: string[] = [];
 
-  // Mock data - replace with real API
-  trainings: Training[] = [
-    {
-      id: '1',
-      date: '2025-06-27',
-      startTime: '09:00',
-      duration: 60,
-      clientName: 'Anna Kowalska',
-      location: 'Siłownia A',
-      notes: 'Trening siłowy - nogi',
-      status: 'confirmed'
-    },
-    {
-      id: '2',
-      date: '2025-06-27',
-      startTime: '11:00',
-      duration: 45,
-      clientName: 'Michał Nowak',
-      location: 'Siłownia B',
-      notes: 'Cardio + stretching',
-      status: 'confirmed'
-    },
-    {
-      id: '3',
-      date: '2025-06-28',
-      startTime: '14:00',
-      duration: 30,
-      clientName: 'Ewa Wiśniewska',
-      location: 'Sala fitness',
-      notes: 'Konsultacja żywieniowa',
-      status: 'pending'
-    },
-    {
-      id: '4',
-      date: '2025-06-30',
-      startTime: '16:00',
-      duration: 90,
-      clientName: 'Tomasz Zieliński',
-      location: 'Siłownia A',
-      notes: 'Trening funkcjonalny',
-      status: 'confirmed'
-    }
-  ];
+  // Training sessions - will be loaded from API
+  trainings: Training[] = [];
 
   monthNames = [
     'Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec',
@@ -134,10 +95,15 @@ export class CalendarComponent implements OnInit {
   dayNames = ['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'Sb', 'Nd'];
   dayNamesFull = ['Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota', 'Niedziela'];
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private trainingSessionService: TrainingSessionService,
+    private clientService: ClientService
+  ) {}
 
   ngOnInit(): void {
     this.generateTimeSlots();
+    this.loadTrainings();
     this.generateCalendar();
     this.generateWeekView();
   }
@@ -405,14 +371,12 @@ export class CalendarComponent implements OnInit {
 
     if (this.editingTraining) {
       // Update existing training
-      const index = this.trainings.findIndex(t => t.id === this.editingTraining!.id);
-      if (index !== -1) {
-        this.trainings[index] = {
-          ...this.editingTraining,
-          ...this.newTraining as Training
-        };
-        this.showSuccess('Trening został zaktualizowany!');
-      }
+      const updatedTraining: Training = {
+        ...this.editingTraining,
+        ...this.newTraining as Training
+      };
+      this.updateTrainingAPI(updatedTraining);
+      this.showSuccess('Trening został zaktualizowany!');
     } else {
       // Add new training
       const newId = (Date.now() + Math.random()).toString();
@@ -427,21 +391,17 @@ export class CalendarComponent implements OnInit {
         status: this.newTraining.status as 'confirmed' | 'pending' | 'cancelled'
       };
 
-      this.trainings.push(training);
+      this.saveTrainingToAPI(training);
       this.showSuccess('Trening został dodany!');
     }
 
-    this.generateCalendar();
-    this.generateWeekView();
     this.closeAddModal();
   }
 
   // Delete training
   deleteTraining(trainingId: string): void {
     if (confirm('Czy na pewno chcesz usunąć ten trening?')) {
-      this.trainings = this.trainings.filter(t => t.id !== trainingId);
-      this.generateCalendar();
-      this.generateWeekView();
+      this.deleteTrainingAPI(trainingId);
       this.closeDetailsModal();
       this.showSuccess('Trening został usunięty!');
     }
@@ -592,43 +552,90 @@ export class CalendarComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 
-  // API methods - ready for backend integration
+  // API methods - connected to backend
   async loadTrainings(): Promise<void> {
     try {
-      // GET /api/trainings
-      // const response = await this.http.get<Training[]>('/api/trainings').toPromise();
-      // this.trainings = response || [];
-      // this.generateCalendar();
-      // this.generateWeekView();
+      const response = await this.trainingSessionService.getAllSessions().toPromise();
+      // Convert TrainingSession to Training for compatibility
+      this.trainings = (response || []).map(session => this.convertSessionToTraining(session));
+      this.generateCalendar();
+      this.generateWeekView();
     } catch (error) {
       this.showError('Błąd podczas ładowania treningów');
+      console.error('Error loading trainings:', error);
     }
   }
 
   async saveTrainingToAPI(training: Training): Promise<void> {
     try {
-      // POST /api/trainings
-      // await this.http.post('/api/trainings', training).toPromise();
+      const sessionRequest = this.convertTrainingToSessionRequest(training);
+      await this.trainingSessionService.createSession(sessionRequest).toPromise();
+      this.loadTrainings(); // Reload to get the updated data
     } catch (error) {
       this.showError('Błąd podczas zapisywania treningu');
+      console.error('Error saving training:', error);
     }
   }
 
   async updateTrainingAPI(training: Training): Promise<void> {
     try {
-      // PUT /api/trainings/:id
-      // await this.http.put(`/api/trainings/${training.id}`, training).toPromise();
+      const sessionRequest = this.convertTrainingToSessionRequest(training);
+      await this.trainingSessionService.updateSession(Number(training.id), sessionRequest).toPromise();
+      this.loadTrainings(); // Reload to get the updated data
     } catch (error) {
       this.showError('Błąd podczas aktualizacji treningu');
+      console.error('Error updating training:', error);
     }
   }
 
   async deleteTrainingAPI(trainingId: string): Promise<void> {
     try {
-      // DELETE /api/trainings/:id
-      // await this.http.delete(`/api/trainings/${trainingId}`).toPromise();
+      await this.trainingSessionService.deleteSession(Number(trainingId)).toPromise();
+      this.loadTrainings(); // Reload to get the updated data
     } catch (error) {
       this.showError('Błąd podczas usuwania treningu');
+      console.error('Error deleting training:', error);
     }
+  }
+
+  // Conversion methods between Training and TrainingSession
+  private convertSessionToTraining(session: TrainingSession): Training {
+    return {
+      id: session.id.toString(),
+      date: session.sessionDate,
+      startTime: session.startTime,
+      duration: this.calculateDuration(session.startTime, session.endTime),
+      clientName: session.clientName,
+      location: session.location || '',
+      notes: session.notes || '',
+      status: session.status.toLowerCase() as 'confirmed' | 'pending' | 'cancelled'
+    };
+  }
+
+  private convertTrainingToSessionRequest(training: Training): TrainingSessionRequest {
+    const endTime = this.calculateEndTime(training.startTime, training.duration);
+    return {
+      sessionDate: training.date,
+      startTime: training.startTime,
+      endTime: endTime,
+      sessionType: 'Trening personalny', // Default type
+      location: training.location,
+      notes: training.notes,
+      clientId: 1, // TODO: Get actual client ID from client selection
+      price: 0, // TODO: Add price field to form
+      isPaid: false
+    };
+  }
+
+  private calculateDuration(startTime: string, endTime: string): number {
+    const start = this.timeToMinutes(startTime);
+    const end = this.timeToMinutes(endTime);
+    return end - start;
+  }
+
+  private calculateEndTime(startTime: string, duration: number): string {
+    const startMinutes = this.timeToMinutes(startTime);
+    const endMinutes = startMinutes + duration;
+    return this.minutesToTime(endMinutes);
   }
 }

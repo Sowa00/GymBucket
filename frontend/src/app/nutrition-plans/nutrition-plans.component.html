@@ -1,0 +1,531 @@
+<div class="nutrition-plans-container">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <button class="back-btn" (click)="goBack()">
+        <span>←</span>
+        <span>Powrót</span>
+      </button>
+      <div class="header-title">
+        <h1>🥗 Plany Żywieniowe</h1>
+        <p>Zarządzaj planami żywieniowymi i posiłkami</p>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <div class="search-wrapper">
+        <span class="search-icon">🔍</span>
+        <input
+          type="text"
+          placeholder="Szukaj planów lub posiłków..."
+          [(ngModel)]="searchQuery"
+          (keyup.enter)="onSearch()"
+          class="search-input"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button
+      *ngFor="let tab of [
+        { id: 'plans', label: 'Plany Żywieniowe', icon: '📋' },
+        { id: 'meals', label: 'Posiłki', icon: '🍽️' }
+      ]"
+      (click)="selectTab(tab.id)"
+      [class]="'tab ' + (selectedTab === tab.id ? 'tab-active' : '')"
+    >
+      <span class="tab-icon">{{ tab.icon }}</span>
+      <span class="tab-label">{{ tab.label }}</span>
+    </button>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+    <!-- Nutrition Plans Tab -->
+    <div *ngIf="selectedTab === 'plans'" class="tab-content">
+      <div class="section-header">
+        <h2>Plany Żywieniowe</h2>
+        <button class="create-btn" (click)="createPlan()">
+          <span>➕</span>
+          <span>Nowy Plan</span>
+        </button>
+      </div>
+
+      <div *ngIf="isLoading" class="loading">
+        <div class="spinner"></div>
+        <p>Ładowanie planów żywieniowych...</p>
+      </div>
+
+      <div *ngIf="!isLoading && nutritionPlans.length === 0" class="empty-state">
+        <div class="empty-icon">📋</div>
+        <h3>Brak planów żywieniowych</h3>
+        <p>Stwórz swój pierwszy plan żywieniowy dla klientów</p>
+        <button class="create-btn" (click)="createPlan()">
+          <span>➕</span>
+          <span>Stwórz Plan</span>
+        </button>
+      </div>
+
+      <div *ngIf="!isLoading && nutritionPlans.length > 0" class="plans-grid">
+        <div *ngFor="let plan of nutritionPlans" class="plan-card">
+          <div class="plan-header">
+            <h3>{{ plan.name }}</h3>
+            <div class="plan-actions">
+              <button class="action-btn edit" (click)="editPlan(plan)" title="Edytuj">
+                ✏️
+              </button>
+              <button class="action-btn duplicate" (click)="duplicatePlan(plan)" title="Duplikuj">
+                📋
+              </button>
+              <button class="action-btn delete" (click)="deletePlan(plan)" title="Usuń">
+                🗑️
+              </button>
+            </div>
+          </div>
+
+          <div class="plan-content">
+            <p class="plan-description">{{ plan.description || 'Brak opisu' }}</p>
+            
+            <div class="plan-details">
+              <div class="detail-item">
+                <span class="detail-label">Kategoria:</span>
+                <span class="detail-value">{{ getCategoryLabel(plan.category) }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Poziom:</span>
+                <span class="detail-value">{{ getDifficultyLabel(plan.difficulty) }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Kalorie:</span>
+                <span class="detail-value">{{ formatCalories(plan.targetCalories) }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Czas trwania:</span>
+                <span class="detail-value">{{ formatDuration(plan.duration) }}</span>
+              </div>
+            </div>
+
+            <div class="plan-macros">
+              <div class="macro-item">
+                <span class="macro-label">Białko:</span>
+                <span class="macro-value">{{ plan.targetProtein }}g</span>
+              </div>
+              <div class="macro-item">
+                <span class="macro-label">Węglowodany:</span>
+                <span class="macro-value">{{ plan.targetCarbs }}g</span>
+              </div>
+              <div class="macro-item">
+                <span class="macro-label">Tłuszcze:</span>
+                <span class="macro-value">{{ plan.targetFat }}g</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Meals Tab -->
+    <div *ngIf="selectedTab === 'meals'" class="tab-content">
+      <div class="section-header">
+        <h2>Posiłki</h2>
+        <button class="create-btn" (click)="createMeal()">
+          <span>➕</span>
+          <span>Nowy Posiłek</span>
+        </button>
+      </div>
+
+      <div *ngIf="isLoading" class="loading">
+        <div class="spinner"></div>
+        <p>Ładowanie posiłków...</p>
+      </div>
+
+      <div *ngIf="!isLoading && meals.length === 0" class="empty-state">
+        <div class="empty-icon">🍽️</div>
+        <h3>Brak posiłków</h3>
+        <p>Stwórz swój pierwszy posiłek</p>
+        <button class="create-btn" (click)="createMeal()">
+          <span>➕</span>
+          <span>Stwórz Posiłek</span>
+        </button>
+      </div>
+
+      <div *ngIf="!isLoading && meals.length > 0" class="meals-grid">
+        <div *ngFor="let meal of meals" class="meal-card">
+          <div class="meal-header">
+            <h3>{{ meal.name }}</h3>
+            <div class="meal-actions">
+              <button class="action-btn edit" (click)="editMeal(meal)" title="Edytuj">
+                ✏️
+              </button>
+              <button class="action-btn delete" (click)="deleteMeal(meal)" title="Usuń">
+                🗑️
+              </button>
+            </div>
+          </div>
+
+          <div class="meal-content">
+            <p class="meal-description">{{ meal.description || 'Brak opisu' }}</p>
+            
+            <div class="meal-details">
+              <div class="detail-item">
+                <span class="detail-label">Kategoria:</span>
+                <span class="detail-value">{{ getMealCategoryLabel(meal.category) }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Kalorie:</span>
+                <span class="detail-value">{{ formatCalories(meal.calories) }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Czas przygotowania:</span>
+                <span class="detail-value">{{ meal.prepTime }} min</span>
+              </div>
+            </div>
+
+            <div class="meal-macros">
+              <div class="macro-item">
+                <span class="macro-label">Białko:</span>
+                <span class="macro-value">{{ meal.protein }}g</span>
+              </div>
+              <div class="macro-item">
+                <span class="macro-label">Węglowodany:</span>
+                <span class="macro-value">{{ meal.carbs }}g</span>
+              </div>
+              <div class="macro-item">
+                <span class="macro-label">Tłuszcze:</span>
+                <span class="macro-value">{{ meal.fat }}g</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="error-message">
+    <span>⚠️</span>
+    <span>{{ errorMessage }}</span>
+    <button class="close-btn" (click)="errorMessage = ''">×</button>
+  </div>
+
+  <!-- Plan Modal -->
+  <div *ngIf="showPlanModal" class="modal-overlay" (click)="showPlanModal = false">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ selectedPlan ? 'Edytuj Plan' : 'Nowy Plan Żywieniowy' }}</h3>
+        <button class="close-btn" (click)="showPlanModal = false">×</button>
+      </div>
+
+      <div class="modal-content">
+        <form (ngSubmit)="savePlan()">
+          <div class="form-group">
+            <label for="planName">Nazwa planu *</label>
+            <input
+              type="text"
+              id="planName"
+              [(ngModel)]="planForm.name"
+              name="planName"
+              required
+              placeholder="Nazwa planu żywieniowego"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="planDescription">Opis</label>
+            <textarea
+              id="planDescription"
+              [(ngModel)]="planForm.description"
+              name="planDescription"
+              placeholder="Opis planu żywieniowego"
+              rows="3"
+            ></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="planCategory">Kategoria</label>
+              <select
+                id="planCategory"
+                [(ngModel)]="planForm.category"
+                name="planCategory"
+              >
+                <option *ngFor="let category of planCategories" [value]="category.value">
+                  {{ category.label }}
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="planDifficulty">Poziom trudności</label>
+              <select
+                id="planDifficulty"
+                [(ngModel)]="planForm.difficulty"
+                name="planDifficulty"
+              >
+                <option *ngFor="let difficulty of difficulties" [value]="difficulty.value">
+                  {{ difficulty.label }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="targetCalories">Docelowe kalorie</label>
+              <input
+                type="number"
+                id="targetCalories"
+                [(ngModel)]="planForm.targetCalories"
+                name="targetCalories"
+                placeholder="2000"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="duration">Czas trwania (dni)</label>
+              <input
+                type="number"
+                id="duration"
+                [(ngModel)]="planForm.duration"
+                name="duration"
+                placeholder="30"
+              />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="targetProtein">Białko (g)</label>
+              <input
+                type="number"
+                id="targetProtein"
+                [(ngModel)]="planForm.targetProtein"
+                name="targetProtein"
+                placeholder="150"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="targetCarbs">Węglowodany (g)</label>
+              <input
+                type="number"
+                id="targetCarbs"
+                [(ngModel)]="planForm.targetCarbs"
+                name="targetCarbs"
+                placeholder="200"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="targetFat">Tłuszcze (g)</label>
+              <input
+                type="number"
+                id="targetFat"
+                [(ngModel)]="planForm.targetFat"
+                name="targetFat"
+                placeholder="80"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [(ngModel)]="planForm.isPublic"
+                name="isPublic"
+              />
+              <span>Plan publiczny</span>
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [(ngModel)]="planForm.isTemplate"
+                name="isTemplate"
+              />
+              <span>Szablon planu</span>
+            </label>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn-secondary" (click)="showPlanModal = false">
+              Anuluj
+            </button>
+            <button type="submit" class="btn-primary" [disabled]="isLoading">
+              {{ isLoading ? 'Zapisywanie...' : (selectedPlan ? 'Zaktualizuj' : 'Stwórz') }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Meal Modal -->
+  <div *ngIf="showMealModal" class="modal-overlay" (click)="showMealModal = false">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ selectedMeal ? 'Edytuj Posiłek' : 'Nowy Posiłek' }}</h3>
+        <button class="close-btn" (click)="showMealModal = false">×</button>
+      </div>
+
+      <div class="modal-content">
+        <form (ngSubmit)="saveMeal()">
+          <div class="form-group">
+            <label for="mealName">Nazwa posiłku *</label>
+            <input
+              type="text"
+              id="mealName"
+              [(ngModel)]="mealForm.name"
+              name="mealName"
+              required
+              placeholder="Nazwa posiłku"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="mealDescription">Opis</label>
+            <textarea
+              id="mealDescription"
+              [(ngModel)]="mealForm.description"
+              name="mealDescription"
+              placeholder="Opis posiłku"
+              rows="3"
+            ></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="mealCategory">Kategoria</label>
+              <select
+                id="mealCategory"
+                [(ngModel)]="mealForm.category"
+                name="mealCategory"
+              >
+                <option *ngFor="let category of mealCategories" [value]="category.value">
+                  {{ category.label }}
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="calories">Kalorie</label>
+              <input
+                type="number"
+                id="calories"
+                [(ngModel)]="mealForm.calories"
+                name="calories"
+                placeholder="300"
+              />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="protein">Białko (g)</label>
+              <input
+                type="number"
+                id="protein"
+                [(ngModel)]="mealForm.protein"
+                name="protein"
+                placeholder="25"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="carbs">Węglowodany (g)</label>
+              <input
+                type="number"
+                id="carbs"
+                [(ngModel)]="mealForm.carbs"
+                name="carbs"
+                placeholder="40"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="fat">Tłuszcze (g)</label>
+              <input
+                type="number"
+                id="fat"
+                [(ngModel)]="mealForm.fat"
+                name="fat"
+                placeholder="10"
+              />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="prepTime">Czas przygotowania (min)</label>
+              <input
+                type="number"
+                id="prepTime"
+                [(ngModel)]="mealForm.prepTime"
+                name="prepTime"
+                placeholder="15"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="cookTime">Czas gotowania (min)</label>
+              <input
+                type="number"
+                id="cookTime"
+                [(ngModel)]="mealForm.cookTime"
+                name="cookTime"
+                placeholder="20"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="servings">Porcje</label>
+              <input
+                type="number"
+                id="servings"
+                [(ngModel)]="mealForm.servings"
+                name="servings"
+                placeholder="1"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="instructions">Instrukcje przygotowania</label>
+            <textarea
+              id="instructions"
+              [(ngModel)]="mealForm.instructions"
+              name="instructions"
+              placeholder="Instrukcje przygotowania posiłku"
+              rows="4"
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [(ngModel)]="mealForm.isPublic"
+                name="isPublic"
+              />
+              <span>Posiłek publiczny</span>
+            </label>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn-secondary" (click)="showMealModal = false">
+              Anuluj
+            </button>
+            <button type="submit" class="btn-primary" [disabled]="isLoading">
+              {{ isLoading ? 'Zapisywanie...' : (selectedMeal ? 'Zaktualizuj' : 'Stwórz') }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

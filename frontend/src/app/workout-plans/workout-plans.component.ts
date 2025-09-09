@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { WorkoutPlanService, WorkoutPlan as ServiceWorkoutPlan, WorkoutPlanRequest } from '../services/workout-plan.service';
+import { ExerciseService, Exercise as ServiceExercise } from '../services/exercise.service';
 
 interface Exercise {
   id: string;
@@ -79,6 +81,7 @@ export class WorkoutPlansComponent implements OnInit {
   showExerciseModal = false;
   showAssignModal = false;
   showPlanDetailsModal = false;
+  showCreateExerciseModal = false;
   editingPlan: WorkoutPlan | null = null;
   selectedPlan: WorkoutPlan | null = null;
   selectedExercise: Exercise | null = null;
@@ -108,6 +111,23 @@ export class WorkoutPlansComponent implements OnInit {
     order: 0
   };
 
+  // Exercise creation form
+  newExerciseForm: any = {
+    name: '',
+    description: '',
+    category: 'STRENGTH',
+    difficulty: 'BEGINNER',
+    muscleGroups: [],
+    equipment: [],
+    instructions: '',
+    tips: '',
+    warnings: ''
+  };
+
+  // Text fields for muscle groups and equipment
+  muscleGroupsText = '';
+  equipmentText = '';
+
   // Available options
   categories = [
     { value: 'strength', label: 'Siłowy', icon: '💪' },
@@ -133,144 +153,27 @@ export class WorkoutPlansComponent implements OnInit {
   ];
 
   validationErrors: string[] = [];
+  isLoading = false;
 
-  // Mock data - replace with API calls
-  workoutPlans: WorkoutPlan[] = [
-    {
-      id: '1',
-      name: 'Push Day - Górne partie',
-      description: 'Trening pchnięciowy skupiony na klatce piersiowej, ramionach i tricepsie',
-      category: 'strength',
-      difficulty: 'intermediate',
-      duration: 75,
-      targetMuscleGroups: ['Klatka piersiowa', 'Ramiona', 'Triceps'],
-      exercises: [
-        {
-          exerciseId: 'ex1',
-          sets: 4,
-          reps: '8-10',
-          weight: 80,
-          restTime: 120,
-          order: 1,
-          notes: 'Kontrolowane tempo'
-        },
-        {
-          exerciseId: 'ex2',
-          sets: 3,
-          reps: '10-12',
-          weight: 25,
-          restTime: 90,
-          order: 2
-        }
-      ],
-      createdDate: '2025-06-20',
-      lastModified: '2025-06-25',
-      isPublic: true,
-      createdBy: 'trainer1',
-      tags: ['siła', 'góra', 'push'],
-      equipment: ['Sztanga', 'Hantle', 'Maszyna'],
-      clientAssignments: ['client1', 'client2']
-    },
-    {
-      id: '2',
-      name: 'HIIT Cardio Burner',
-      description: 'Intensywny trening interwałowy na spalanie tłuszczu',
-      category: 'cardio',
-      difficulty: 'advanced',
-      duration: 30,
-      targetMuscleGroups: ['Całe ciało'],
-      exercises: [
-        {
-          exerciseId: 'ex3',
-          sets: 5,
-          reps: '30s',
-          duration: 30,
-          restTime: 30,
-          order: 1,
-          notes: 'Maksymalne tempo'
-        }
-      ],
-      createdDate: '2025-06-22',
-      lastModified: '2025-06-26',
-      isPublic: false,
-      createdBy: 'trainer1',
-      tags: ['hiit', 'cardio', 'spalanie'],
-      equipment: ['Własny ciężar ciała', 'Kettlebell']
-    }
-  ];
+  // Workout plans - will be loaded from API
+  workoutPlans: WorkoutPlan[] = [];
 
-  exercises: Exercise[] = [
-    {
-      id: 'ex1',
-      name: 'Wyciskanie sztangi na ławce płaskiej',
-      muscleGroups: ['Klatka piersiowa', 'Triceps', 'Ramiona'],
-      equipment: ['Sztanga', 'Ławka'],
-      description: 'Podstawowe ćwiczenie na klatkę piersiową',
-      instructions: [
-        'Połóż się na ławce, stopy na podłodze',
-        'Chwyć sztangę nieco szerzej niż szerokość ramion',
-        'Opuść sztangę kontrolowanie do klatki',
-        'Wypchnij sztangę w górę, nie blokując łokci'
-      ],
-      difficulty: 'intermediate'
-    },
-    {
-      id: 'ex2',
-      name: 'Wyciskanie hantli na ławce skośnej',
-      muscleGroups: ['Klatka piersiowa', 'Ramiona'],
-      equipment: ['Hantle', 'Ławka'],
-      description: 'Ćwiczenie na górną część klatki piersiowej',
-      instructions: [
-        'Ustaw ławkę pod kątem 30-45 stopni',
-        'Chwyć hantle neutralnym chwytem',
-        'Opuść hantle kontrolowanie do boków klatki',
-        'Wypchnij hantle w górę, łącząc je nad klatką'
-      ],
-      difficulty: 'beginner'
-    },
-    {
-      id: 'ex3',
-      name: 'Burpees',
-      muscleGroups: ['Całe ciało', 'Core', 'Nogi'],
-      equipment: ['Własny ciężar ciała'],
-      description: 'Złożone ćwiczenie kardio-siłowe',
-      instructions: [
-        'Stań wyprostowany',
-        'Przejdź w pozycję przysiadu i połóż ręce na podłodze',
-        'Wyskocz nogami do tyłu w pozycję deski',
-        'Wykonaj pompkę (opcjonalnie)',
-        'Wyskocz nogami z powrotem do przysiadu',
-        'Wyskocz w górę z rękami nad głową'
-      ],
-      difficulty: 'advanced'
-    }
-  ];
+  // Exercises - will be loaded from API
+  exercises: Exercise[] = [];
 
-  templates: WorkoutPlanTemplate[] = [
-    {
-      id: 'tpl1',
-      name: 'Trening FBW dla początkujących',
-      description: 'Pełnowymiarowy trening 3x w tygodniu',
-      category: 'strength',
-      exercises: [
-        { sets: 3, reps: '8-12', restTime: 90, order: 1 },
-        { sets: 3, reps: '8-12', restTime: 90, order: 2 },
-        { sets: 3, reps: '8-12', restTime: 90, order: 3 }
-      ],
-      isSystem: true
-    }
-  ];
+  // Templates - will be loaded from API
+  templates: WorkoutPlanTemplate[] = [];
 
-  // Clients for assignment
-  clients = [
-    { id: 'client1', name: 'Anna Kowalska', email: 'anna@example.com' },
-    { id: 'client2', name: 'Michał Nowak', email: 'michal@example.com' },
-    { id: 'client3', name: 'Ewa Wiśniewska', email: 'ewa@example.com' }
-  ];
+  // Clients for assignment - will be loaded from API
+  clients: any[] = [];
 
   selectedClients: string[] = [];
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private workoutPlanService: WorkoutPlanService,
+    private exerciseService: ExerciseService
+  ) {}
 
   ngOnInit(): void {
     this.loadWorkoutPlans();
@@ -291,7 +194,7 @@ export class WorkoutPlansComponent implements OnInit {
         plan.targetMuscleGroups.includes(this.muscleGroupFilter);
       const matchesEquipment = !this.equipmentFilter ||
         plan.equipment.includes(this.equipmentFilter);
-      const matchesOwnership = !this.showOnlyMyPlans || plan.createdBy === 'trainer1'; // current user
+      const matchesOwnership = !this.showOnlyMyPlans || plan.createdBy === 'current_user'; // current user
 
       return matchesSearch && matchesCategory && matchesDifficulty &&
         matchesMuscleGroup && matchesEquipment && matchesOwnership;
@@ -363,6 +266,7 @@ export class WorkoutPlansComponent implements OnInit {
     this.showExerciseModal = false;
     this.showAssignModal = false;
     this.showPlanDetailsModal = false;
+    this.showCreateExerciseModal = false;
     this.selectedPlan = null;
     this.selectedExercise = null;
     this.editingPlan = null;
@@ -405,15 +309,12 @@ export class WorkoutPlansComponent implements OnInit {
 
     if (this.editingPlan) {
       // Update existing plan
-      const index = this.workoutPlans.findIndex(p => p.id === this.editingPlan!.id);
-      if (index !== -1) {
-        this.workoutPlans[index] = {
-          ...this.editingPlan,
-          ...this.newPlan as WorkoutPlan,
-          lastModified: now
-        };
-        this.showSuccess('Plan treningowy został zaktualizowany!');
-      }
+      const updatedPlan: WorkoutPlan = {
+        ...this.editingPlan,
+        ...this.newPlan as WorkoutPlan,
+        lastModified: now
+      };
+      this.savePlanToAPI(updatedPlan);
     } else {
       // Create new plan
       const newId = (Date.now() + Math.random()).toString();
@@ -429,13 +330,12 @@ export class WorkoutPlansComponent implements OnInit {
         createdDate: now,
         lastModified: now,
         isPublic: this.newPlan.isPublic!,
-        createdBy: 'trainer1', // current user
+        createdBy: 'current_user', // current user
         tags: this.newPlan.tags!,
         equipment: this.newPlan.equipment!
       };
 
-      this.workoutPlans.push(plan);
-      this.showSuccess('Plan treningowy został utworzony!');
+      this.savePlanToAPI(plan);
     }
 
     this.closeModals();
@@ -443,8 +343,7 @@ export class WorkoutPlansComponent implements OnInit {
 
   deletePlan(planId: string): void {
     if (confirm('Czy na pewno chcesz usunąć ten plan treningowy?')) {
-      this.workoutPlans = this.workoutPlans.filter(p => p.id !== planId);
-      this.showSuccess('Plan treningowy został usunięty!');
+      this.deletePlanFromAPI(planId);
       this.closeModals();
     }
   }
@@ -459,7 +358,7 @@ export class WorkoutPlansComponent implements OnInit {
       name: `${plan.name} (kopia)`,
       createdDate: now,
       lastModified: now,
-      createdBy: 'trainer1', // current user
+      createdBy: 'current_user', // current user
       isPublic: false,
       clientAssignments: []
     };
@@ -668,6 +567,64 @@ export class WorkoutPlansComponent implements OnInit {
     alert(message); // Temporary - replace with proper notification
   }
 
+  // Exercise creation methods
+  openCreateExerciseModal(): void {
+    this.newExerciseForm = {
+      name: '',
+      description: '',
+      category: 'STRENGTH',
+      difficulty: 'BEGINNER',
+      muscleGroups: [],
+      equipment: [],
+      instructions: '',
+      tips: '',
+      warnings: ''
+    };
+    this.muscleGroupsText = '';
+    this.equipmentText = '';
+    this.showCreateExerciseModal = true;
+  }
+
+  saveExercise(): void {
+    if (!this.newExerciseForm.name?.trim()) {
+      this.showError('Nazwa ćwiczenia jest wymagana');
+      return;
+    }
+
+    this.isLoading = true;
+
+    // Convert text fields to arrays
+    const muscleGroups = this.muscleGroupsText
+      .split(',')
+      .map(mg => mg.trim())
+      .filter(mg => mg.length > 0);
+    
+    const equipment = this.equipmentText
+      .split(',')
+      .map(eq => eq.trim())
+      .filter(eq => eq.length > 0);
+
+    const exerciseRequest = {
+      ...this.newExerciseForm,
+      muscleGroups: muscleGroups,
+      equipment: equipment
+    };
+
+    this.exerciseService.createExercise(exerciseRequest).subscribe({
+      next: (createdExercise) => {
+        this.isLoading = false;
+        this.showCreateExerciseModal = false;
+        this.loadExercises();
+        this.showSuccess('Ćwiczenie zostało utworzone pomyślnie!');
+      },
+      error: (error) => {
+        this.isLoading = false;
+        this.showError('Błąd podczas tworzenia ćwiczenia: ' + (error.message || 'Nieznany błąd'));
+        console.error('Error creating exercise:', error);
+      }
+    });
+  }
+
   // Navigation
   goToHomepage(): void {
     this.router.navigate(['/homepage']);
@@ -685,47 +642,66 @@ export class WorkoutPlansComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 
-  // API methods - ready for backend integration
+  // API methods - connected to backend
   async loadWorkoutPlans(): Promise<void> {
     try {
-      // GET /api/workout-plans
-      // const response = await this.http.get<WorkoutPlan[]>('/api/workout-plans').toPromise();
-      // this.workoutPlans = response || [];
+      this.isLoading = true;
+      const response = await this.workoutPlanService.getAllWorkoutPlansList().toPromise();
+      // Convert service WorkoutPlan to component WorkoutPlan
+      this.workoutPlans = (response || []).map(servicePlan => this.convertServiceToComponentWorkoutPlan(servicePlan));
     } catch (error) {
+      console.error('Error loading workout plans:', error);
       this.showError('Błąd podczas ładowania planów treningowych');
+    } finally {
+      this.isLoading = false;
     }
   }
 
   async loadExercises(): Promise<void> {
     try {
-      // GET /api/exercises
-      // const response = await this.http.get<Exercise[]>('/api/exercises').toPromise();
-      // this.exercises = response || [];
+      this.isLoading = true;
+      const response = await this.exerciseService.getAllExercisesList().toPromise();
+      // Convert service Exercise to component Exercise
+      this.exercises = (response || []).map(serviceExercise => this.convertServiceToComponentExercise(serviceExercise));
     } catch (error) {
+      console.error('Error loading exercises:', error);
       this.showError('Błąd podczas ładowania ćwiczeń');
+    } finally {
+      this.isLoading = false;
     }
   }
 
   async savePlanToAPI(plan: WorkoutPlan): Promise<void> {
     try {
+      this.isLoading = true;
       if (plan.id && this.editingPlan) {
-        // PUT /api/workout-plans/:id
-        // await this.http.put(`/api/workout-plans/${plan.id}`, plan).toPromise();
+        // Update existing plan
+        const planRequest: WorkoutPlanRequest = this.convertToWorkoutPlanRequest(plan);
+        await this.workoutPlanService.updateWorkoutPlan(Number(plan.id), planRequest).toPromise();
       } else {
-        // POST /api/workout-plans
-        // await this.http.post('/api/workout-plans', plan).toPromise();
+        // Create new plan
+        const planRequest: WorkoutPlanRequest = this.convertToWorkoutPlanRequest(plan);
+        await this.workoutPlanService.createWorkoutPlan(planRequest).toPromise();
       }
+      this.loadWorkoutPlans();
     } catch (error) {
-      this.showError('Błąd podczas zapisywania planu');
+      console.error('Error saving workout plan:', error);
+      this.showError('Błąd podczas zapisywania planu treningowego');
+    } finally {
+      this.isLoading = false;
     }
   }
 
   async deletePlanFromAPI(planId: string): Promise<void> {
     try {
-      // DELETE /api/workout-plans/:id
-      // await this.http.delete(`/api/workout-plans/${planId}`).toPromise();
+      this.isLoading = true;
+      await this.workoutPlanService.deleteWorkoutPlan(Number(planId)).toPromise();
+      this.loadWorkoutPlans();
     } catch (error) {
-      this.showError('Błąd podczas usuwania planu');
+      console.error('Error deleting workout plan:', error);
+      this.showError('Błąd podczas usuwania planu treningowego');
+    } finally {
+      this.isLoading = false;
     }
   }
 
@@ -736,5 +712,73 @@ export class WorkoutPlansComponent implements OnInit {
     } catch (error) {
       this.showError('Błąd podczas przypisywania planu');
     }
+  }
+
+  // Helper method to convert component WorkoutPlan to service WorkoutPlanRequest
+  private convertToWorkoutPlanRequest(plan: WorkoutPlan): WorkoutPlanRequest {
+    return {
+      name: plan.name,
+      description: plan.description,
+      category: plan.category.toUpperCase(),
+      difficulty: plan.difficulty.toUpperCase(),
+      estimatedDuration: plan.duration,
+      targetMuscleGroups: plan.targetMuscleGroups,
+      requiredEquipment: plan.equipment,
+      tags: plan.tags,
+      isPublic: plan.isPublic,
+      exercises: plan.exercises.map(ex => ({
+        exerciseId: Number(ex.exerciseId),
+        sets: ex.sets,
+        reps: ex.reps,
+        weight: ex.weight || 0,
+        duration: ex.duration || 0,
+        restTime: ex.restTime,
+        notes: ex.notes || '',
+        order: ex.order
+      }))
+    };
+  }
+
+  // Helper method to convert service WorkoutPlan to component WorkoutPlan
+  private convertServiceToComponentWorkoutPlan(servicePlan: ServiceWorkoutPlan): WorkoutPlan {
+    return {
+      id: servicePlan.id.toString(),
+      name: servicePlan.name,
+      description: servicePlan.description,
+      category: servicePlan.category.toLowerCase() as 'strength' | 'cardio' | 'flexibility' | 'mixed',
+      difficulty: servicePlan.difficulty.toLowerCase() as 'beginner' | 'intermediate' | 'advanced',
+      duration: servicePlan.estimatedDuration,
+      targetMuscleGroups: servicePlan.targetMuscleGroups,
+      equipment: servicePlan.requiredEquipment,
+      exercises: servicePlan.exercises.map(ex => ({
+        exerciseId: ex.exerciseId.toString(),
+        exerciseName: ex.exerciseName,
+        sets: ex.sets,
+        reps: ex.reps,
+        weight: ex.weight,
+        duration: ex.duration,
+        restTime: ex.restTime,
+        notes: ex.notes,
+        order: ex.order
+      })),
+      createdDate: servicePlan.createdAt,
+      lastModified: servicePlan.updatedAt,
+      isPublic: servicePlan.isPublic,
+      createdBy: servicePlan.createdBy,
+      tags: servicePlan.tags
+    };
+  }
+
+  // Helper method to convert service Exercise to component Exercise
+  private convertServiceToComponentExercise(serviceExercise: ServiceExercise): Exercise {
+    return {
+      id: serviceExercise.id.toString(),
+      name: serviceExercise.name,
+      muscleGroups: serviceExercise.muscleGroups,
+      equipment: serviceExercise.equipment,
+      description: serviceExercise.description,
+      instructions: [serviceExercise.instructions], // Convert string to array
+      difficulty: serviceExercise.difficulty.toLowerCase() as 'beginner' | 'intermediate' | 'advanced'
+    };
   }
 }

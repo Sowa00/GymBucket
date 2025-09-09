@@ -14,7 +14,7 @@ export interface User {
   avatar?: string;
   phone?: string;
   specializations?: string[];
-  certification?: string[];
+  certifications?: string[];  // Fixed: changed from 'certification' to 'certifications'
   experience?: number;
   createdAt: string;
   lastLogin?: string;
@@ -108,42 +108,31 @@ export class AuthService {
 
   // Login method
   login(credentials: LoginRequest): Observable<LoginResponse> {
-    // Mock implementation - replace with real API call
-    return this.mockLogin(credentials).pipe(
-      map(response => {
-        if (response.success) {
-          this.handleSuccessfulAuth(response, credentials.rememberMe);
-        }
-        return response;
-      }),
-      catchError(this.handleError)
-    );
-
-    // Real API implementation:
-    // return this.http.post<LoginResponse>(`${this.API_URL}/auth/login`, credentials)
-    //   .pipe(
-    //     map(response => {
-    //       if (response.success) {
-    //         this.handleSuccessfulAuth(response, credentials.rememberMe);
-    //       }
-    //       return response;
-    //     }),
-    //     catchError(this.handleError)
-    //   );
+    // Real API implementation - send only email and password to match backend DTO
+    const loginData = {
+      email: credentials.email,
+      password: credentials.password
+    };
+    
+    return this.http.post<LoginResponse>(`${this.API_URL}/auth/login`, loginData)
+      .pipe(
+        map(response => {
+          if (response.success) {
+            this.handleSuccessfulAuth(response, credentials.rememberMe);
+          }
+          return response;
+        }),
+        catchError(this.handleError)
+      );
   }
 
   // Register method
   register(userData: RegisterRequest): Observable<RegisterResponse> {
-    // Mock implementation - replace with real API call
-    return this.mockRegister(userData).pipe(
-      catchError(this.handleError)
-    );
-
     // Real API implementation:
-    // return this.http.post<RegisterResponse>(`${this.API_URL}/auth/register`, userData)
-    //   .pipe(
-    //     catchError(this.handleError)
-    //   );
+    return this.http.post<RegisterResponse>(`${this.API_URL}/auth/register`, userData)
+      .pipe(
+        catchError(this.handleError)
+      );
   }
 
   // Logout method
@@ -287,6 +276,15 @@ export class AuthService {
   private handleError = (error: any): Observable<never> => {
     let errorMessage = 'Wystąpił nieoczekiwany błąd';
 
+    // Enhanced error logging for debugging
+    console.error('Auth Error Details:', {
+      status: error.status,
+      statusText: error.statusText,
+      url: error.url,
+      error: error.error,
+      message: error.message
+    });
+
     if (error.error) {
       if (typeof error.error === 'string') {
         errorMessage = error.error;
@@ -299,6 +297,15 @@ export class AuthService {
       }
     } else if (error.message) {
       errorMessage = error.message;
+    }
+
+    // Handle specific HTTP status codes
+    if (error.status === 0) {
+      errorMessage = 'Nie można połączyć się z serwerem. Sprawdź czy backend jest uruchomiony.';
+    } else if (error.status === 401) {
+      errorMessage = 'Nieprawidłowy email lub hasło';
+    } else if (error.status === 500) {
+      errorMessage = 'Błąd serwera. Spróbuj ponownie później.';
     }
 
     console.error('Auth Error:', error);
@@ -324,7 +331,7 @@ export class AuthService {
               avatar: 'https://i.pravatar.cc/150?img=1',
               phone: '+48 123 456 789',
               specializations: ['Siłownia', 'Kardio', 'Dietetyka'],
-              certification: ['ACE Personal Trainer', 'NASM-CPT'],
+              certifications: ['ACE Personal Trainer', 'NASM-CPT'],
               experience: 5,
               createdAt: '2023-01-15T10:00:00Z',
               lastLogin: new Date().toISOString()

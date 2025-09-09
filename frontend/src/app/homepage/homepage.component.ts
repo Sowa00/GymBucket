@@ -1,7 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
+import { Subject, takeUntil, filter } from 'rxjs';
+import { ClientService, Client as ApiClient, ClientStats } from '../services/client.service';
+import { TrainingSessionService, TrainingSession } from '../services/training-session.service';
+import { AuthService } from '../services/auth.service';
 
 interface Client {
   id: number;
@@ -26,55 +30,36 @@ interface Stats {
   templateUrl: './homepage.component.html',
   styleUrls: ['./homepage.component.css']
 })
-export class HomepageComponent implements OnInit {
+export class HomepageComponent implements OnInit, OnDestroy {
   selectedTab = 'dashboard';
   searchQuery = '';
+  isLoading = false;
+  errorMessage = '';
 
-  // Mock data
+  // Real data
   stats: Stats = {
-    totalClients: 24,
-    todaysSessions: 6,
-    weeklyRevenue: '2,480 zł',
-    completionRate: '94%'
+    totalClients: 0,
+    todaysSessions: 0,
+    weeklyRevenue: '0 zł',
+    completionRate: '0%'
   };
 
-  upcomingClients: Client[] = [
-    { id: 1, name: 'Anna Kowalska', time: '9:00', type: 'Trening siłowy' },
-    { id: 2, name: 'Michał Nowak', time: '11:30', type: 'Cardio' },
-    { id: 3, name: 'Ewa Wiśniewska', time: '14:00', type: 'Konsultacja żywieniowa' },
-    { id: 4, name: 'Tomasz Zieliński', time: '16:30', type: 'Trening funkcjonalny' }
-  ];
+  realClients: ApiClient[] = [];
+  clientStats: ClientStats | null = null;
+  realSessions: TrainingSession[] = [];
 
-  recentActivity: Client[] = [
-    {
-      id: 1, name: 'Aleksandra Mazur', lastSession: '2 dni temu', progress: '+5 kg siła',
-      time: '',
-      type: ''
-    },
-    {
-      id: 2, name: 'Łukasz Kowal', lastSession: '1 dzień temu', progress: '-2% tłuszcz',
-      time: '',
-      type: ''
-    },
-    {
-      id: 3, name: 'Marta Włodarczyk', lastSession: '3 dni temu', progress: '+10 kg martwy ciąg',
-      time: '',
-      type: ''
-    },
-    {
-      id: 4, name: 'Paweł Sowa', lastSession: '1 dzień temu', progress: '+3 cm biceps',
-      time: '',
-      type: ''
-    }
-  ];
+  private destroy$ = new Subject<void>();
+
+  upcomingClients: Client[] = [];
+
+  recentActivity: Client[] = [];
 
   navigationItems = [
     { id: 'dashboard', label: 'Dashboard', icon: '🏠', active: true },
     { id: 'clients', label: 'Klienci', icon: '👥', active: false },
     { id: 'calendar', label: 'Kalendarz', icon: '📅', active: false },
     { id: 'workouts', label: 'Plany treningowe', icon: '💪', active: false },
-    { id: 'nutrition', label: 'Plany żywieniowe', icon: '🥗', active: false },
-    { id: 'settings', label: 'Ustawienia', icon: '⚙️', active: false }
+    { id: 'nutrition', label: 'Plany żywieniowe', icon: '🥗', active: false }
   ];
 
   quickActions = [
@@ -98,10 +83,118 @@ export class HomepageComponent implements OnInit {
     }
   ];
 
-  constructor(private router: Router) { }
+  constructor(
+    private router: Router,
+    private clientService: ClientService,
+    private trainingSessionService: TrainingSessionService,
+    private authService: AuthService
+  ) { }
 
   ngOnInit(): void {
-    // Component initialization
+    this.loadRealData();
+    
+    // Listen for navigation events to refresh data when returning to homepage
+    this.router.events
+      .pipe(
+        filter(event => event instanceof NavigationEnd),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((event: NavigationEnd) => {
+        if (event.url === '/homepage' || event.url === '/') {
+          this.loadRealData();
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  // Load real data from API
+  loadRealData(): void {
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    // Load client statistics
+    this.clientService.getClientStats()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (stats) => {
+          this.clientStats = stats;
+          this.updateStatsDisplay(stats);
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Error loading client stats:', error);
+          this.errorMessage = 'Błąd podczas ładowania statystyk';
+          this.isLoading = false;
+        }
+      });
+
+    // Load active clients for upcoming sessions
+    this.clientService.getActiveClients()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (clients) => {
+          this.realClients = clients;
+          this.updateUpcomingClients(clients);
+        },
+        error: (error) => {
+          console.error('Error loading clients:', error);
+        }
+      });
+
+    // Load today's training sessions
+    this.trainingSessionService.getTodaysSessions()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (sessions) => {
+          this.realSessions = sessions;
+          this.updateTodaysSessions(sessions);
+        },
+        error: (error) => {
+          console.error('Error loading today\'s sessions:', error);
+        }
+      });
+  }
+
+  // Update stats display with real data
+  updateStatsDisplay(stats: ClientStats): void {
+    this.stats = {
+      totalClients: stats.totalClients,
+      todaysSessions: this.realSessions.length,
+      weeklyRevenue: `${stats.monthlyRevenue.toFixed(0)} zł`,
+      completionRate: stats.totalClients > 0 ? `${Math.round((stats.paidClients / stats.totalClients) * 100)}%` : '0%'
+    };
+  }
+
+  // Update upcoming clients with real data
+  updateUpcomingClients(clients: ApiClient[]): void {
+    // For now, show first 3 active clients as "upcoming"
+    // In a real app, this would be actual scheduled sessions
+    this.upcomingClients = clients.slice(0, 3).map((client, index) => ({
+      id: client.id,
+      name: this.clientService.getClientFullName(client),
+      time: `${9 + index * 2}:00`, // Mock times
+      type: 'Trening siłowy' // Mock type
+    }));
+  }
+
+  // Update today's sessions with real data
+  updateTodaysSessions(sessions: TrainingSession[]): void {
+    // Update the stats with real session count
+    if (this.clientStats) {
+      this.updateStatsDisplay(this.clientStats);
+    }
+
+    // Update upcoming clients with real session data
+    this.upcomingClients = sessions.slice(0, 3).map((session) => ({
+      id: session.id,
+      name: session.clientName,
+      time: this.trainingSessionService.formatSessionTime(session.startTime, session.endTime),
+      type: session.sessionType
+    }));
   }
 
   selectTab(tabId: string): void {
@@ -113,11 +206,11 @@ export class HomepageComponent implements OnInit {
     // Nawigacja do odpowiednich stron
     switch (tabId) {
       case 'dashboard':
-        // Zostajemy na homepage
+        // Refresh data when returning to dashboard
+        this.loadRealData();
         break;
       case 'clients':
-        console.log('Nawigacja do klientów - w przygotowaniu');
-        // this.router.navigate(['/clients']);
+        this.router.navigate(['/clients']);
         break;
       case 'calendar':
         this.router.navigate(['/calendar']);
@@ -128,12 +221,8 @@ export class HomepageComponent implements OnInit {
         this.router.navigate(['/workout-plans']);
         break;
       case 'nutrition':
-        console.log('Nawigacja do planów żywieniowych - w przygotowaniu');
-        // this.router.navigate(['/nutrition']);
-        break;
-      case 'settings':
-        console.log('Nawigacja do ustawień - w przygotowaniu');
-        // this.router.navigate(['/settings']);
+        console.log('Nawigacja do planów żywieniowych');
+        this.router.navigate(['/nutrition-plans']);
         break;
     }
   }
@@ -149,8 +238,7 @@ export class HomepageComponent implements OnInit {
   }
 
   addNewClient(): void {
-    console.log('Dodawanie nowego klienta');
-    // Implement add client functionality
+    this.router.navigate(['/clients']);
   }
 
   viewClientDetails(client: Client): void {
@@ -164,8 +252,7 @@ export class HomepageComponent implements OnInit {
   }
 
   viewAllClients(): void {
-    console.log('Wyświetlanie wszystkich klientów');
-    // Navigate to clients page
+    this.router.navigate(['/clients']);
   }
 
   executeQuickAction(action: any): void {
@@ -182,13 +269,6 @@ export class HomepageComponent implements OnInit {
   }
 
   logout(): void {
-    // Clear any stored auth data
-    localStorage.removeItem('gymbucket_user');
-    localStorage.removeItem('gymbucket_token');
-    sessionStorage.removeItem('gymbucket_user');
-    sessionStorage.removeItem('gymbucket_token');
-
-    // Navigate to login
-    this.router.navigate(['/login']);
+    this.authService.logout();
   }
 }
