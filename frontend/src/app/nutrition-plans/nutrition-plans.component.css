@@ -306,11 +306,6 @@
   border-color: rgba(33, 150, 243, 0.5);
 }
 
-.action-btn.duplicate:hover {
-  background: rgba(156, 39, 176, 0.3);
-  border-color: rgba(156, 39, 176, 0.5);
-}
-
 .plan-content, .meal-content {
   color: rgba(255, 255, 255, 0.9);
 }

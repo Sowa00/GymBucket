@@ -79,9 +79,6 @@
               <button class="action-btn edit" (click)="editPlan(plan)" title="Edytuj">
                 ✏️
               </button>
-              <button class="action-btn duplicate" (click)="duplicatePlan(plan)" title="Duplikuj">
-                📋
-              </button>
               <button class="action-btn delete" (click)="deletePlan(plan)" title="Usuń">
                 🗑️
               </button>
@@ -214,11 +211,11 @@
   </div>
 
   <!-- Plan Modal -->
-  <div *ngIf="showPlanModal" class="modal-overlay" (click)="showPlanModal = false">
+  <div *ngIf="showPlanModal" class="modal-overlay" (click)="closeModals()">
     <div class="modal-content large-modal" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h3>{{ selectedPlan ? 'Edytuj Plan' : 'Nowy Plan Żywieniowy' }}</h3>
-        <button class="close-btn" (click)="showPlanModal = false">×</button>
+        <button class="close-btn" (click)="closeModals()">×</button>
       </div>
         <form (ngSubmit)="savePlan()">
           <div class="form-group">
@@ -418,7 +415,7 @@
           </div>
 
           <div class="modal-actions">
-            <button type="button" class="btn-secondary" (click)="showPlanModal = false">
+            <button type="button" class="btn-secondary" (click)="closeModals()">
               Anuluj
             </button>
             <button type="submit" class="btn-primary" [disabled]="isLoading">
@@ -430,14 +427,12 @@
   </div>
 
   <!-- Meal Modal -->
-  <div *ngIf="showMealModal" class="modal-overlay" (click)="showMealModal = false">
-    <div class="modal" (click)="$event.stopPropagation()">
+  <div *ngIf="showMealModal" class="modal-overlay" (click)="closeModals()">
+    <div class="modal-content large-modal" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h3>{{ selectedMeal ? 'Edytuj Posiłek' : 'Nowy Posiłek' }}</h3>
-        <button class="close-btn" (click)="showMealModal = false">×</button>
+        <button class="close-btn" (click)="closeModals()">×</button>
       </div>
-
-      <div class="modal-content">
         <form (ngSubmit)="saveMeal()">
           <div class="form-group">
             <label for="mealName">Nazwa posiłku *</label>
@@ -581,7 +576,7 @@
           </div>
 
           <div class="modal-actions">
-            <button type="button" class="btn-secondary" (click)="showMealModal = false">
+            <button type="button" class="btn-secondary" (click)="closeModals()">
               Anuluj
             </button>
             <button type="submit" class="btn-primary" [disabled]="isLoading">
@@ -589,7 +584,6 @@
             </button>
           </div>
         </form>
-      </div>
     </div>
   </div>
 

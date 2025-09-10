@@ -9,6 +9,7 @@ import gym.backend.model.User;
 import gym.backend.repository.NutritionPlanRepository;
 import gym.backend.repository.MealRepository;
 import gym.backend.repository.UserRepository;
+import gym.backend.repository.NutritionPlanMealRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -36,6 +38,9 @@ public class NutritionPlanService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private NutritionPlanMealRepository nutritionPlanMealRepository;
 
     // Get all nutrition plans with pagination
     public Page<NutritionPlanDTO> getAllNutritionPlans(Pageable pageable) {
@@ -132,7 +137,11 @@ public class NutritionPlanService {
 
         // Update meals if provided
         if (request.getMeals() != null) {
-            // Clear existing meals
+            // Delete existing meals from database first
+            List<NutritionPlanMeal> existingMeals = new ArrayList<>(nutritionPlan.getMeals());
+            for (NutritionPlanMeal existingMeal : existingMeals) {
+                nutritionPlanMealRepository.delete(existingMeal);
+            }
             nutritionPlan.getMeals().clear();
             
             // Add new meals

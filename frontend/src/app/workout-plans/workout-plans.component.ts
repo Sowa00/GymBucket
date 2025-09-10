@@ -321,30 +321,10 @@ export class WorkoutPlansComponent implements OnInit {
   }
 
   deletePlan(planId: string): void {
-    if (confirm('Czy na pewno chcesz usunąć ten plan treningowy?')) {
-      this.deletePlanFromAPI(planId);
-      this.closeModals();
-    }
+    this.deletePlanFromAPI(planId);
+    this.closeModals();
   }
 
-  duplicatePlan(plan: WorkoutPlan): void {
-    const newId = (Date.now() + Math.random()).toString();
-    const now = new Date().toISOString().split('T')[0];
-
-    const duplicatedPlan: WorkoutPlan = {
-      ...plan,
-      id: newId,
-      name: `${plan.name} (kopia)`,
-      createdDate: now,
-      lastModified: now,
-      createdBy: 'current_user', // current user
-      isPublic: false,
-      clientAssignments: []
-    };
-
-    this.workoutPlans.push(duplicatedPlan);
-    this.showSuccess('Plan został zduplikowany!');
-  }
 
   // Exercise management in plan
   addExerciseToPlan(): void {

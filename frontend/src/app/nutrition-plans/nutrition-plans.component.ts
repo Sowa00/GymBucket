@@ -157,6 +157,10 @@ export class NutritionPlansComponent implements OnInit {
       ...plan,
       meals: plan.meals ? [...plan.meals] : []
     };
+    // Reset meal assignment form when editing
+    this.selectedMealForAssignment = '';
+    this.selectedMealDay = 1;
+    this.selectedMealOrder = 1;
     this.showPlanModal = true;
   }
 
@@ -189,7 +193,7 @@ export class NutritionPlansComponent implements OnInit {
       this.nutritionPlanService.updateNutritionPlan(this.selectedPlan.id, planRequest).subscribe({
         next: (updatedPlan) => {
           this.isLoading = false;
-          this.showPlanModal = false;
+          this.closeModals();
           this.loadNutritionPlans();
           console.log('Plan updated successfully:', updatedPlan);
         },
@@ -204,7 +208,7 @@ export class NutritionPlansComponent implements OnInit {
       this.nutritionPlanService.createNutritionPlan(planRequest).subscribe({
         next: (newPlan) => {
           this.isLoading = false;
-          this.showPlanModal = false;
+          this.closeModals();
           this.loadNutritionPlans();
           console.log('Plan created successfully:', newPlan);
         },
@@ -218,42 +222,23 @@ export class NutritionPlansComponent implements OnInit {
   }
 
   deletePlan(plan: NutritionPlan): void {
-    if (confirm(`Czy na pewno chcesz usunąć plan "${plan.name}"?`)) {
-      this.isLoading = true;
-      this.errorMessage = '';
-      
-      this.nutritionPlanService.deleteNutritionPlan(plan.id).subscribe({
-        next: (response) => {
-          this.isLoading = false;
-          this.loadNutritionPlans();
-          console.log('Plan deleted successfully:', response);
-        },
-        error: (error: any) => {
-          this.errorMessage = 'Błąd podczas usuwania planu';
-          this.isLoading = false;
-          console.error('Error deleting plan:', error);
-        }
-      });
-    }
-  }
-
-  duplicatePlan(plan: NutritionPlan): void {
     this.isLoading = true;
     this.errorMessage = '';
     
-    this.nutritionPlanService.duplicateNutritionPlan(plan.id).subscribe({
-      next: (duplicatedPlan) => {
+    this.nutritionPlanService.deleteNutritionPlan(plan.id).subscribe({
+      next: (response) => {
         this.isLoading = false;
         this.loadNutritionPlans();
-        console.log('Plan duplicated successfully:', duplicatedPlan);
+        console.log('Plan deleted successfully:', response);
       },
       error: (error: any) => {
-        this.errorMessage = 'Błąd podczas duplikowania planu';
+        this.errorMessage = 'Błąd podczas usuwania planu';
         this.isLoading = false;
-        console.error('Error duplicating plan:', error);
+        console.error('Error deleting plan:', error);
       }
     });
   }
+
 
   // Meals Methods
   loadMeals(): void {
@@ -329,7 +314,7 @@ export class NutritionPlansComponent implements OnInit {
       this.nutritionPlanService.updateMeal(this.selectedMeal.id, mealRequest).subscribe({
         next: (updatedMeal) => {
           this.isLoading = false;
-          this.showMealModal = false;
+          this.closeModals();
           this.loadMeals();
           console.log('Meal updated successfully:', updatedMeal);
         },
@@ -344,7 +329,7 @@ export class NutritionPlansComponent implements OnInit {
       this.nutritionPlanService.createMeal(mealRequest).subscribe({
         next: (newMeal) => {
           this.isLoading = false;
-          this.showMealModal = false;
+          this.closeModals();
           this.loadMeals();
           console.log('Meal created successfully:', newMeal);
         },
@@ -358,23 +343,21 @@ export class NutritionPlansComponent implements OnInit {
   }
 
   deleteMeal(meal: Meal): void {
-    if (confirm(`Czy na pewno chcesz usunąć posiłek "${meal.name}"?`)) {
-      this.isLoading = true;
-      this.errorMessage = '';
-      
-      this.nutritionPlanService.deleteMeal(meal.id).subscribe({
-        next: (response) => {
-          this.isLoading = false;
-          this.loadMeals();
-          console.log('Meal deleted successfully:', response);
-        },
-        error: (error: any) => {
-          this.errorMessage = 'Błąd podczas usuwania posiłku';
-          this.isLoading = false;
-          console.error('Error deleting meal:', error);
-        }
-      });
-    }
+    this.isLoading = true;
+    this.errorMessage = '';
+    
+    this.nutritionPlanService.deleteMeal(meal.id).subscribe({
+      next: (response) => {
+        this.isLoading = false;
+        this.loadMeals();
+        console.log('Meal deleted successfully:', response);
+      },
+      error: (error: any) => {
+        this.errorMessage = 'Błąd podczas usuwania posiłku';
+        this.isLoading = false;
+        console.error('Error deleting meal:', error);
+      }
+    });
   }
 
   // Client Assignment Methods
@@ -400,6 +383,20 @@ export class NutritionPlansComponent implements OnInit {
     this.selectedMeal = null;
     this.selectedClientForAssignment = '';
     this.selectedClients = [];
+    this.resetForms();
+  }
+
+  resetForms(): void {
+    // Reset plan form
+    this.resetPlanForm();
+    
+    // Reset meal form
+    this.resetMealForm();
+
+    // Reset meal assignment form
+    this.selectedMealForAssignment = '';
+    this.selectedMealDay = 1;
+    this.selectedMealOrder = 1;
   }
 
   loadPlanAssignments(planId: number): void {
@@ -522,10 +519,8 @@ export class NutritionPlansComponent implements OnInit {
   }
 
   removeMealFromPlan(index: number): void {
-    if (confirm('Czy na pewno chcesz usunąć ten posiłek z planu?')) {
-      this.planForm.meals.splice(index, 1);
-      this.showSuccess('Posiłek został usunięty z planu');
-    }
+    this.planForm.meals.splice(index, 1);
+    this.showSuccess('Posiłek został usunięty z planu');
   }
 
   getMealName(mealId: number): string {

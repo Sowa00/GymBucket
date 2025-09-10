@@ -127,9 +127,6 @@
             <button class="action-btn" (click)="openEditPlanModal(plan)" title="Edytuj">
               ✏️
             </button>
-            <button class="action-btn" (click)="duplicatePlan(plan)" title="Duplikuj">
-              📋
-            </button>
             <button class="action-btn" (click)="openAssignModal(plan)" title="Przypisz">
               👥
             </button>
@@ -227,7 +224,6 @@
 
           <div class="list-actions">
             <button class="action-btn" (click)="openEditPlanModal(plan)">✏️</button>
-            <button class="action-btn" (click)="duplicatePlan(plan)">📋</button>
             <button class="action-btn" (click)="openAssignModal(plan)">👥</button>
           </div>
         </div>
@@ -685,9 +681,6 @@
         </button>
         <button class="btn-assign" (click)="openAssignModal(selectedPlan!)">
           👥 Przypisz klientom
-        </button>
-        <button class="btn-duplicate" (click)="duplicatePlan(selectedPlan!)">
-          📋 Duplikuj plan
         </button>
       </div>
     </div>

@@ -164,12 +164,12 @@
         
         <div class="form-row">
           <div class="form-group">
-            <label>Data urodzenia</label>
-            <input type="date" [(ngModel)]="newClient.dateOfBirth" name="dateOfBirth">
+            <label class="form-label">Data urodzenia</label>
+            <input type="date" [(ngModel)]="newClient.dateOfBirth" name="dateOfBirth" class="form-input">
           </div>
           <div class="form-group">
-            <label>Płeć</label>
-            <select [(ngModel)]="newClient.gender" name="gender">
+            <label class="form-label">Płeć</label>
+            <select [(ngModel)]="newClient.gender" name="gender" class="form-select">
               <option value="">Wybierz płeć</option>
               <option value="MALE">Mężczyzna</option>
               <option value="FEMALE">Kobieta</option>
@@ -180,23 +180,23 @@
         
         <div class="form-row">
           <div class="form-group">
-            <label>Wzrost (cm)</label>
-            <input type="number" [(ngModel)]="newClient.height" name="height">
+            <label class="form-label">Wzrost (cm)</label>
+            <input type="number" [(ngModel)]="newClient.height" name="height" class="form-input">
           </div>
           <div class="form-group">
-            <label>Waga (kg)</label>
-            <input type="number" [(ngModel)]="newClient.weight" name="weight">
+            <label class="form-label">Waga (kg)</label>
+            <input type="number" [(ngModel)]="newClient.weight" name="weight" class="form-input">
           </div>
         </div>
         
         <div class="form-group">
-          <label>Opłata miesięczna (zł)</label>
-          <input type="number" [(ngModel)]="newClient.monthlyFee" name="monthlyFee">
+          <label class="form-label">Opłata miesięczna (zł)</label>
+          <input type="number" [(ngModel)]="newClient.monthlyFee" name="monthlyFee" class="form-input">
         </div>
         
         <div class="form-group">
-          <label>Status płatności</label>
-          <select [(ngModel)]="newClient.paymentStatus" name="paymentStatus">
+          <label class="form-label">Status płatności</label>
+          <select [(ngModel)]="newClient.paymentStatus" name="paymentStatus" class="form-select">
             <option value="PENDING">Oczekujące</option>
             <option value="PAID">Opłacone</option>
             <option value="OVERDUE">Przeterminowane</option>
@@ -489,7 +489,7 @@
                    class="exercises-list">
                 <h5>Ćwiczenia:</h5>
                 <div *ngFor="let exercise of assignment.exercises" class="exercise-item">
-                  <div class="exercise-name">{{ exercise.name }}</div>
+                  <div class="exercise-name">{{ exercise.exerciseName }}</div>
                   <div class="exercise-details">
                     <span>{{ exercise.sets }} serii</span>
                     <span>{{ exercise.reps }} powtórzeń</span>

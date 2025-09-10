@@ -1262,8 +1262,7 @@
 }
 
 .btn-edit,
-.btn-assign,
-.btn-duplicate {
+.btn-assign {
   padding: 10px 20px;
   border-radius: 8px;
   font-weight: 600;
@@ -1298,16 +1297,6 @@
   transform: translateY(-1px);
 }
 
-.btn-duplicate {
-  background: rgba(99, 102, 241, 0.2);
-  border: 1px solid rgba(99, 102, 241, 0.3);
-  color: #a5b4fc;
-}
-
-.btn-duplicate:hover {
-  background: rgba(99, 102, 241, 0.3);
-  transform: translateY(-1px);
-}
 
 /* Assignment Modal */
 .assign-content {
