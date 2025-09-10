@@ -1,0 +1,26 @@
+# Frontend Dockerfile
+FROM node:18-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY frontend/package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy source code
+COPY frontend/ ./
+
+# Build the application
+RUN npm run build
+
+# Install serve to run the built app
+RUN npm install -g serve
+
+# Expose port
+EXPOSE 4200
+
+# Serve the built application
+CMD ["serve", "-s", "dist/gym-bucket", "-l", "4200"]
