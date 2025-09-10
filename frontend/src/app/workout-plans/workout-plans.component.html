@@ -6,14 +6,8 @@
   </div>
 
   <nav class="navbar-nav">
-    <button class="nav-link" (click)="goToHomepage()">
-      🏠 Dashboard
-    </button>
-    <button class="nav-link" (click)="goToCalendar()">
-      📅 Kalendarz
-    </button>
-    <button class="nav-link active">
-      📋 Plany Treningowe
+    <button class="back-btn" (click)="goToHomepage()" title="Powrót do dashboard">
+      <span>←</span>
     </button>
     <button class="nav-link" (click)="logout()">
       🚪 Wyloguj
@@ -51,12 +45,6 @@
         (click)="activeTab = 'exercises'"
       >
         🏋️ Ćwiczenia ({{ exercises.length }})
-      </button>
-      <button
-        [class]="'tab-btn ' + (activeTab === 'templates' ? 'active' : '')"
-        (click)="activeTab = 'templates'"
-      >
-        📄 Szablony ({{ templates.length }})
       </button>
     </div>
 
@@ -297,28 +285,6 @@
     </div>
   </div>
 
-  <!-- Templates Tab Content -->
-  <div class="tab-content" *ngIf="activeTab === 'templates'">
-    <div class="templates-grid">
-      <div *ngFor="let template of templates" class="template-card">
-        <div class="template-header">
-          <h4>{{ template.name }}</h4>
-          <span class="template-badge" *ngIf="template.isSystem">System</span>
-        </div>
-
-        <p>{{ template.description }}</p>
-
-        <div class="template-meta">
-          <span class="category-tag">{{ getCategoryLabel(template.category) }}</span>
-          <span>{{ template.exercises.length }} ćwiczeń</span>
-        </div>
-
-        <button class="use-template-btn">
-          Użyj szablonu
-        </button>
-      </div>
-    </div>
-  </div>
 </div>
 
 <!-- Create/Edit Plan Modal -->
@@ -737,39 +703,50 @@
     </div>
 
     <div class="assign-content">
-      <p>Wybierz klientów, którym chcesz przypisać ten plan treningowy:</p>
+      <p>Wybierz klienta, któremu chcesz przypisać ten plan treningowy:</p>
 
-      <div class="clients-list">
-        <label
-          *ngFor="let client of clients"
-          class="client-item"
+      <!-- Client Selection Dropdown -->
+      <div class="client-selection">
+        <select [(ngModel)]="selectedClientForAssignment" class="client-select" (change)="onClientSelectionChange()">
+          <option value="">Wybierz klienta</option>
+          <option *ngFor="let client of clients" [value]="client.id">
+            {{ client.firstName }} {{ client.lastName }} ({{ client.email }})
+          </option>
+        </select>
+        
+        <button 
+          type="button" 
+          class="btn-assign-single" 
+          (click)="assignPlanToSelectedClient()"
+          [disabled]="!selectedClientForAssignment || isClientAssigned(selectedClientForAssignment)"
         >
-          <input
-            type="checkbox"
-            [checked]="selectedClients.includes(client.id)"
-            (change)="toggleClientSelection(client.id)"
-          />
-          <div class="client-info">
-            <h5>{{ client.name }}</h5>
-            <p>{{ client.email }}</p>
+          {{ isClientAssigned(selectedClientForAssignment) ? 'Już przypisany' : 'Przypisz plan' }}
+        </button>
+      </div>
+
+      <!-- Assigned Clients List -->
+      <div class="assigned-clients" *ngIf="selectedPlan && selectedClients && selectedClients.length > 0">
+        <h4>Przypisani klienci:</h4>
+        <div class="assigned-clients-list">
+          <div *ngFor="let clientId of selectedClients" class="assigned-client-item">
+            <div class="client-info">
+              <h5>{{ getClientName(clientId) }}</h5>
+              <p>ID: {{ clientId }}</p>
+            </div>
+            <button 
+              type="button" 
+              class="btn-unassign" 
+              (click)="unassignClientFromPlan(clientId)"
+            >
+              Odłącz
+            </button>
           </div>
-          <div class="assignment-status" *ngIf="selectedPlan?.clientAssignments?.includes(client.id)">
-            <span class="status-assigned">✓ Przypisany</span>
-          </div>
-        </label>
+        </div>
       </div>
 
       <div class="assign-actions">
         <button type="button" class="btn-cancel" (click)="closeModals()">
-          Anuluj
-        </button>
-        <button
-          type="button"
-          class="btn-save"
-          (click)="assignPlanToClients()"
-          [disabled]="selectedClients.length === 0"
-        >
-          Przypisz do {{ selectedClients.length }} klientów
+          Zamknij
         </button>
       </div>
     </div>

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NutritionPlanService, NutritionPlan, NutritionPlanRequest, Meal, MealRequest } from '../services/nutrition-plan.service';
+import { ClientService } from '../services/client.service';
 
 @Component({
   selector: 'app-nutrition-plans',
@@ -16,6 +17,7 @@ export class NutritionPlansComponent implements OnInit {
   searchQuery = '';
   isLoading = false;
   errorMessage = '';
+  successMessage = '';
 
   // Nutrition Plans
   nutritionPlans: NutritionPlan[] = [];
@@ -26,6 +28,25 @@ export class NutritionPlansComponent implements OnInit {
   // Meals
   meals: Meal[] = [];
   selectedMeal: Meal | null = null;
+  availableMeals: Meal[] = [];
+
+  // Client Assignment
+  clients: any[] = [];
+  showAssignModal = false;
+  selectedClientForAssignment: string = '';
+  selectedClients: string[] = [];
+
+  // Meal Assignment
+  selectedMealForAssignment: string = '';
+  selectedMealDay: number = 1;
+  selectedMealOrder: number = 1;
+  
+  mealOrderOptions = [
+    { value: 1, label: 'Śniadanie' },
+    { value: 2, label: 'Obiad' },
+    { value: 3, label: 'Kolacja' },
+    { value: 4, label: 'Przekąska' }
+  ];
 
   // Form data
   planForm = {
@@ -39,7 +60,8 @@ export class NutritionPlansComponent implements OnInit {
     targetFat: 80,
     duration: 30,
     isPublic: false,
-    isTemplate: false
+    isTemplate: false,
+    meals: [] as any[]
   };
 
   mealForm = {
@@ -90,12 +112,14 @@ export class NutritionPlansComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private nutritionPlanService: NutritionPlanService
+    private nutritionPlanService: NutritionPlanService,
+    private clientService: ClientService
   ) {}
 
   ngOnInit(): void {
     this.loadNutritionPlans();
     this.loadMeals();
+    this.loadAvailableMeals();
   }
 
   selectTab(tab: string): void {
@@ -113,7 +137,7 @@ export class NutritionPlansComponent implements OnInit {
         this.nutritionPlans = plans;
         this.isLoading = false;
       },
-      error: (error) => {
+      error: (error: any) => {
         this.errorMessage = 'Błąd podczas ładowania planów żywieniowych';
         this.isLoading = false;
         console.error('Error loading nutrition plans:', error);
@@ -129,7 +153,10 @@ export class NutritionPlansComponent implements OnInit {
 
   editPlan(plan: NutritionPlan): void {
     this.selectedPlan = plan;
-    this.planForm = { ...plan };
+    this.planForm = { 
+      ...plan,
+      meals: plan.meals ? [...plan.meals] : []
+    };
     this.showPlanModal = true;
   }
 
@@ -154,7 +181,7 @@ export class NutritionPlansComponent implements OnInit {
       duration: this.planForm.duration,
       isPublic: this.planForm.isPublic,
       isTemplate: this.planForm.isTemplate,
-      meals: [] // TODO: Add meal selection functionality
+      meals: this.planForm.meals || []
     };
 
     if (this.selectedPlan) {
@@ -166,7 +193,7 @@ export class NutritionPlansComponent implements OnInit {
           this.loadNutritionPlans();
           console.log('Plan updated successfully:', updatedPlan);
         },
-        error: (error) => {
+        error: (error: any) => {
           this.errorMessage = 'Błąd podczas aktualizacji planu';
           this.isLoading = false;
           console.error('Error updating plan:', error);
@@ -181,7 +208,7 @@ export class NutritionPlansComponent implements OnInit {
           this.loadNutritionPlans();
           console.log('Plan created successfully:', newPlan);
         },
-        error: (error) => {
+        error: (error: any) => {
           this.errorMessage = 'Błąd podczas tworzenia planu';
           this.isLoading = false;
           console.error('Error creating plan:', error);
@@ -201,7 +228,7 @@ export class NutritionPlansComponent implements OnInit {
           this.loadNutritionPlans();
           console.log('Plan deleted successfully:', response);
         },
-        error: (error) => {
+        error: (error: any) => {
           this.errorMessage = 'Błąd podczas usuwania planu';
           this.isLoading = false;
           console.error('Error deleting plan:', error);
@@ -220,7 +247,7 @@ export class NutritionPlansComponent implements OnInit {
         this.loadNutritionPlans();
         console.log('Plan duplicated successfully:', duplicatedPlan);
       },
-      error: (error) => {
+      error: (error: any) => {
         this.errorMessage = 'Błąd podczas duplikowania planu';
         this.isLoading = false;
         console.error('Error duplicating plan:', error);
@@ -238,10 +265,21 @@ export class NutritionPlansComponent implements OnInit {
         this.meals = meals;
         this.isLoading = false;
       },
-      error: (error) => {
+      error: (error: any) => {
         this.errorMessage = 'Błąd podczas ładowania posiłków';
         this.isLoading = false;
         console.error('Error loading meals:', error);
+      }
+    });
+  }
+
+  loadAvailableMeals(): void {
+    this.nutritionPlanService.getAllMeals().subscribe({
+      next: (meals) => {
+        this.availableMeals = meals;
+      },
+      error: (error: any) => {
+        console.error('Error loading available meals:', error);
       }
     });
   }
@@ -295,7 +333,7 @@ export class NutritionPlansComponent implements OnInit {
           this.loadMeals();
           console.log('Meal updated successfully:', updatedMeal);
         },
-        error: (error) => {
+        error: (error: any) => {
           this.errorMessage = 'Błąd podczas aktualizacji posiłku';
           this.isLoading = false;
           console.error('Error updating meal:', error);
@@ -310,7 +348,7 @@ export class NutritionPlansComponent implements OnInit {
           this.loadMeals();
           console.log('Meal created successfully:', newMeal);
         },
-        error: (error) => {
+        error: (error: any) => {
           this.errorMessage = 'Błąd podczas tworzenia posiłku';
           this.isLoading = false;
           console.error('Error creating meal:', error);
@@ -330,7 +368,7 @@ export class NutritionPlansComponent implements OnInit {
           this.loadMeals();
           console.log('Meal deleted successfully:', response);
         },
-        error: (error) => {
+        error: (error: any) => {
           this.errorMessage = 'Błąd podczas usuwania posiłku';
           this.isLoading = false;
           console.error('Error deleting meal:', error);
@@ -338,6 +376,173 @@ export class NutritionPlansComponent implements OnInit {
       });
     }
   }
+
+  // Client Assignment Methods
+  openAssignModal(plan: NutritionPlan): void {
+    this.selectedPlan = plan;
+    this.selectedClients = [];
+    this.selectedClientForAssignment = '';
+    this.loadClients();
+    this.loadPlanAssignments(plan.id);
+    this.showAssignModal = true;
+  }
+
+  closeAssignModal(): void {
+    this.showAssignModal = false;
+    this.selectedClientForAssignment = '';
+  }
+
+  closeModals(): void {
+    this.showPlanModal = false;
+    this.showMealModal = false;
+    this.showAssignModal = false;
+    this.selectedPlan = null;
+    this.selectedMeal = null;
+    this.selectedClientForAssignment = '';
+    this.selectedClients = [];
+  }
+
+  loadPlanAssignments(planId: number): void {
+    this.clientService.getNutritionPlanAssignments(planId).subscribe({
+      next: (assignments: any[]) => {
+        this.selectedClients = assignments.map(assignment => assignment.clientId.toString());
+      },
+      error: (error: any) => {
+        console.error('Error loading plan assignments:', error);
+      }
+    });
+  }
+
+  loadClients(): void {
+    this.clientService.getAllClients().subscribe({
+      next: (clients: any[]) => {
+        this.clients = clients;
+      },
+      error: (error: any) => {
+        console.error('Error loading clients:', error);
+        this.errorMessage = 'Błąd podczas ładowania klientów';
+      }
+    });
+  }
+
+  onClientSelectionChange(): void {
+    // This method is called when the client selection dropdown changes
+    // The actual logic will be handled in the template
+  }
+
+  isClientAssigned(clientId: string): boolean {
+    return this.selectedClients.includes(clientId);
+  }
+
+  assignPlanToSelectedClient(): void {
+    if (!this.selectedPlan || !this.selectedClientForAssignment) return;
+
+    this.clientService.assignNutritionPlan(
+      parseInt(this.selectedClientForAssignment),
+      this.selectedPlan.id
+    ).subscribe({
+      next: () => {
+        this.selectedClients.push(this.selectedClientForAssignment);
+        this.selectedClientForAssignment = '';
+        this.successMessage = 'Plan żywieniowy został przypisany';
+        setTimeout(() => this.successMessage = '', 3000);
+      },
+      error: (error: any) => {
+        this.errorMessage = 'Błąd podczas przypisywania planu żywieniowego';
+        console.error('Error assigning nutrition plan:', error);
+      }
+    });
+  }
+
+  unassignClientFromPlan(clientId: string): void {
+    if (!this.selectedPlan) return;
+
+    // Find the assignment ID and unassign
+    this.clientService.getNutritionPlanAssignments(this.selectedPlan.id).subscribe({
+      next: (assignments: any[]) => {
+        const assignment = assignments.find(a => a.clientId.toString() === clientId);
+        if (assignment) {
+          this.clientService.unassignNutritionPlan(assignment.id).subscribe({
+            next: () => {
+              this.selectedClients = this.selectedClients.filter(id => id !== clientId);
+              this.successMessage = 'Klient został odłączony od planu';
+              setTimeout(() => this.successMessage = '', 3000);
+            },
+            error: (error: any) => {
+              this.errorMessage = 'Błąd podczas odłączania klienta od planu';
+              console.error('Error unassigning nutrition plan:', error);
+            }
+          });
+        }
+      },
+      error: (error: any) => {
+        this.errorMessage = 'Błąd podczas ładowania przypisań';
+        console.error('Error loading assignments:', error);
+      }
+    });
+  }
+
+  getClientName(clientId: string): string {
+    const client = this.clients.find(c => c.id.toString() === clientId);
+    return client ? `${client.firstName} ${client.lastName}` : 'Nieznany klient';
+  }
+
+  showSuccess(message: string): void {
+    this.successMessage = message;
+    this.errorMessage = '';
+    setTimeout(() => {
+      this.successMessage = '';
+    }, 3000);
+  }
+
+  getDaysArray(): number[] {
+    return Array.from({ length: 30 }, (_, i) => i + 1);
+  }
+
+  addMealToPlan(): void {
+    if (!this.selectedMealForAssignment || !this.selectedMealDay || !this.selectedMealOrder) {
+      this.errorMessage = 'Proszę wybrać posiłek, dzień i porę posiłku';
+      return;
+    }
+
+    const newMeal = {
+      mealId: parseInt(this.selectedMealForAssignment),
+      dayNumber: this.selectedMealDay,
+      mealOrder: this.selectedMealOrder
+    };
+
+    this.planForm.meals.push(newMeal);
+    
+    // Reset form
+    this.selectedMealForAssignment = '';
+    this.selectedMealDay = 1;
+    this.selectedMealOrder = 1;
+    
+    this.showSuccess('Posiłek został dodany do planu');
+  }
+
+  removeMealFromPlan(index: number): void {
+    if (confirm('Czy na pewno chcesz usunąć ten posiłek z planu?')) {
+      this.planForm.meals.splice(index, 1);
+      this.showSuccess('Posiłek został usunięty z planu');
+    }
+  }
+
+  getMealName(mealId: number): string {
+    const meal = this.meals.find(m => m.id === mealId);
+    return meal ? meal.name : 'Nieznany posiłek';
+  }
+
+  getMealCalories(mealId: number): number {
+    const meal = this.meals.find(m => m.id === mealId);
+    return meal ? meal.calories : 0;
+  }
+
+  getMealOrderLabel(mealOrder: number): string {
+    const order = this.mealOrderOptions.find(o => o.value === mealOrder);
+    return order ? order.label : mealOrder.toString();
+  }
+
 
   // Helper Methods
   resetPlanForm(): void {
@@ -352,7 +557,8 @@ export class NutritionPlansComponent implements OnInit {
       targetFat: 80,
       duration: 30,
       isPublic: false,
-      isTemplate: false
+      isTemplate: false,
+      meals: []
     };
   }
 
@@ -406,7 +612,7 @@ export class NutritionPlansComponent implements OnInit {
           this.nutritionPlans = response.content || response;
           this.isLoading = false;
         },
-        error: (error) => {
+        error: (error: any) => {
           this.errorMessage = 'Błąd podczas wyszukiwania';
           this.isLoading = false;
           console.error('Error searching:', error);

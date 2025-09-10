@@ -189,4 +189,18 @@ public class TrainingSessionService {
 
         return dto;
     }
+
+    // Get training sessions by client ID
+    public List<TrainingSessionDTO> getTrainingSessionsByClient(Long clientId) {
+        logger.info("Getting training sessions for client: {}", clientId);
+
+        Client client = clientRepository.findById(clientId)
+                .orElseThrow(() -> new IllegalArgumentException("Client not found with id: " + clientId));
+
+        List<TrainingSession> sessions = trainingSessionRepository.findByClient(client);
+        
+        return sessions.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
 }

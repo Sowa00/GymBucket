@@ -133,4 +133,21 @@ public class TrainingSessionController {
         }
         throw new RuntimeException("User not authenticated");
     }
+
+    // Get training sessions by client ID
+    @GetMapping("/client/{clientId}")
+    public ResponseEntity<?> getTrainingSessionsByClient(@PathVariable Long clientId) {
+        try {
+            logger.info("Getting training sessions for client: {}", clientId);
+            List<TrainingSessionDTO> sessions = trainingSessionService.getTrainingSessionsByClient(clientId);
+            return ResponseEntity.ok(sessions);
+        } catch (IllegalArgumentException e) {
+            logger.error("Error getting training sessions for client {}: {}", clientId, e.getMessage());
+            return ResponseEntity.badRequest().body(new ApiResponseDTO(false, e.getMessage()));
+        } catch (Exception e) {
+            logger.error("Unexpected error getting training sessions for client {}: {}", clientId, e.getMessage());
+            return ResponseEntity.internalServerError()
+                    .body(new ApiResponseDTO(false, "Wystąpił nieoczekiwany błąd podczas pobierania sesji treningowych"));
+        }
+    }
 }

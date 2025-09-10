@@ -25,6 +25,7 @@ export interface NutritionPlan {
   createdAt: string;
   updatedAt: string;
   meals: NutritionPlanMeal[];
+  clientAssignments?: string[];
 }
 
 export interface NutritionPlanMeal {

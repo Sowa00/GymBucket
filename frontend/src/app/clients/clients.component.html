@@ -88,16 +88,19 @@
       </div>
     </div>
     
-    <div *ngFor="let client of filteredClients" class="client-card">
+    <div *ngFor="let client of filteredClients" 
+         class="client-card" 
+         [class.selected]="selectedClientForDetail?.id === client.id"
+         (click)="selectClientForDetail(client)">
       <div class="client-header">
         <div class="client-avatar">
           {{ getInitials(client.firstName, client.lastName) }}
         </div>
         <div class="client-actions">
-          <button class="action-btn edit-btn" (click)="openEditModal(client)" title="Edytuj">
+          <button class="action-btn edit-btn" (click)="openEditModal(client); $event.stopPropagation()" title="Edytuj">
             ✏️
           </button>
-          <button class="action-btn delete-btn" (click)="openDeleteModal(client)" title="Usuń">
+          <button class="action-btn delete-btn" (click)="openDeleteModal(client); $event.stopPropagation()" title="Usuń">
             🗑️
           </button>
         </div>
@@ -256,23 +259,23 @@
         
         <div class="form-row">
           <div class="form-group">
-            <label>Email *</label>
-            <input type="email" [(ngModel)]="newClient.email" name="email" required>
+            <label class="form-label">Email *</label>
+            <input type="email" [(ngModel)]="newClient.email" name="email" class="form-input" required>
           </div>
           <div class="form-group">
-            <label>Telefon</label>
-            <input type="tel" [(ngModel)]="newClient.phone" name="phone">
+            <label class="form-label">Telefon</label>
+            <input type="tel" [(ngModel)]="newClient.phone" name="phone" class="form-input">
           </div>
         </div>
         
         <div class="form-row">
           <div class="form-group">
-            <label>Data urodzenia</label>
-            <input type="date" [(ngModel)]="newClient.dateOfBirth" name="dateOfBirth">
+            <label class="form-label">Data urodzenia</label>
+            <input type="date" [(ngModel)]="newClient.dateOfBirth" name="dateOfBirth" class="form-input">
           </div>
           <div class="form-group">
-            <label>Płeć</label>
-            <select [(ngModel)]="newClient.gender" name="gender">
+            <label class="form-label">Płeć</label>
+            <select [(ngModel)]="newClient.gender" name="gender" class="form-select">
               <option value="">Wybierz płeć</option>
               <option value="MALE">Mężczyzna</option>
               <option value="FEMALE">Kobieta</option>
@@ -283,23 +286,23 @@
         
         <div class="form-row">
           <div class="form-group">
-            <label>Wzrost (cm)</label>
-            <input type="number" [(ngModel)]="newClient.height" name="height">
+            <label class="form-label">Wzrost (cm)</label>
+            <input type="number" [(ngModel)]="newClient.height" name="height" class="form-input">
           </div>
           <div class="form-group">
-            <label>Waga (kg)</label>
-            <input type="number" [(ngModel)]="newClient.weight" name="weight">
+            <label class="form-label">Waga (kg)</label>
+            <input type="number" [(ngModel)]="newClient.weight" name="weight" class="form-input">
           </div>
         </div>
         
         <div class="form-group">
-          <label>Opłata miesięczna (zł)</label>
-          <input type="number" [(ngModel)]="newClient.monthlyFee" name="monthlyFee">
+          <label class="form-label">Opłata miesięczna (zł)</label>
+          <input type="number" [(ngModel)]="newClient.monthlyFee" name="monthlyFee" class="form-input">
         </div>
         
         <div class="form-group">
-          <label>Status płatności</label>
-          <select [(ngModel)]="newClient.paymentStatus" name="paymentStatus">
+          <label class="form-label">Status płatności</label>
+          <select [(ngModel)]="newClient.paymentStatus" name="paymentStatus" class="form-select">
             <option value="PENDING">Oczekujące</option>
             <option value="PAID">Opłacone</option>
             <option value="OVERDUE">Przeterminowane</option>
@@ -307,13 +310,13 @@
         </div>
         
         <div class="form-group">
-          <label>Cele fitness</label>
-          <textarea [(ngModel)]="newClient.fitnessGoals" name="fitnessGoals" rows="3"></textarea>
+          <label class="form-label">Cele fitness</label>
+          <textarea [(ngModel)]="newClient.fitnessGoals" name="fitnessGoals" class="form-textarea" rows="3"></textarea>
         </div>
         
         <div class="form-group">
-          <label>Uwagi medyczne</label>
-          <textarea [(ngModel)]="newClient.medicalConditions" name="medicalConditions" rows="3"></textarea>
+          <label class="form-label">Uwagi medyczne</label>
+          <textarea [(ngModel)]="newClient.medicalConditions" name="medicalConditions" class="form-textarea" rows="3"></textarea>
         </div>
         
         <div class="form-group">
@@ -353,12 +356,210 @@
       </div>
       
       <div class="modal-actions">
-        <button type="button" class="btn-secondary" (click)="closeModals()">
+        <button type="button" class="btn btn-secondary" (click)="closeModals()">
           Anuluj
         </button>
-        <button type="button" class="btn-delete" (click)="deleteClient()" [disabled]="isLoading">
+        <button type="button" class="btn btn-delete" (click)="deleteClient()" [disabled]="isLoading">
           {{ isLoading ? 'Usuwanie...' : 'Usuń klienta' }}
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Client Detail View -->
+  <div *ngIf="selectedClientForDetail" class="client-detail-overlay" (click)="closeClientDetail()">
+    <div class="client-detail-container" (click)="$event.stopPropagation()">
+      <!-- Client Detail Header -->
+      <div class="client-detail-header">
+        <div class="client-detail-title">
+          <h2>{{ selectedClientForDetail.firstName }} {{ selectedClientForDetail.lastName }}</h2>
+          <p>Szczegóły klienta</p>
+        </div>
+        <button class="close-detail-btn" (click)="closeClientDetail()" title="Zamknij">
+          ×
+        </button>
+      </div>
+
+      <!-- Client Detail Content -->
+      <div class="client-detail-content">
+        <!-- Client Information Section -->
+        <div class="detail-section">
+          <h3>Informacje o kliencie</h3>
+          <div class="client-info-grid">
+            <div class="info-item">
+              <label>Email:</label>
+              <span>{{ selectedClientForDetail.email }}</span>
+            </div>
+            <div class="info-item" *ngIf="selectedClientForDetail.phone">
+              <label>Telefon:</label>
+              <span>{{ selectedClientForDetail.phone }}</span>
+            </div>
+            <div class="info-item" *ngIf="selectedClientForDetail.dateOfBirth">
+              <label>Data urodzenia:</label>
+              <span>{{ selectedClientForDetail.dateOfBirth | date:'dd.MM.yyyy' }}</span>
+            </div>
+            <div class="info-item" *ngIf="selectedClientForDetail.gender">
+              <label>Płeć:</label>
+              <span>{{ getGenderLabel(selectedClientForDetail.gender) }}</span>
+            </div>
+            <div class="info-item" *ngIf="selectedClientForDetail.height">
+              <label>Wzrost:</label>
+              <span>{{ selectedClientForDetail.height }} cm</span>
+            </div>
+            <div class="info-item" *ngIf="selectedClientForDetail.weight">
+              <label>Waga:</label>
+              <span>{{ selectedClientForDetail.weight }} kg</span>
+            </div>
+            <div class="info-item" *ngIf="selectedClientForDetail.monthlyFee">
+              <label>Opłata miesięczna:</label>
+              <span>{{ selectedClientForDetail.monthlyFee }} zł</span>
+            </div>
+            <div class="info-item" *ngIf="selectedClientForDetail.paymentStatus">
+              <label>Status płatności:</label>
+              <span class="payment-status" [class.paid]="selectedClientForDetail.paymentStatus === 'PAID'"
+                   [class.pending]="selectedClientForDetail.paymentStatus === 'PENDING'">
+                {{ selectedClientForDetail.paymentStatus === 'PAID' ? 'Opłacone' : 'Oczekujące' }}
+              </span>
+            </div>
+          </div>
+          <div class="info-item full-width" *ngIf="selectedClientForDetail.fitnessGoals">
+            <label>Cele treningowe:</label>
+            <span>{{ selectedClientForDetail.fitnessGoals }}</span>
+          </div>
+          <div class="info-item full-width" *ngIf="selectedClientForDetail.medicalConditions">
+            <label>Warunki medyczne:</label>
+            <span>{{ selectedClientForDetail.medicalConditions }}</span>
+          </div>
+          <div class="info-item full-width" *ngIf="selectedClientForDetail.notes">
+            <label>Notatki:</label>
+            <span>{{ selectedClientForDetail.notes }}</span>
+          </div>
+        </div>
+
+        <!-- Planned Meetings Section -->
+        <div class="detail-section">
+          <h3>Zaplanowane spotkania</h3>
+          <div *ngIf="clientMeetings.length === 0" class="no-data">
+            <p>Brak zaplanowanych spotkań</p>
+          </div>
+          <div *ngIf="clientMeetings.length > 0" class="meetings-list">
+            <div *ngFor="let meeting of clientMeetings" class="meeting-item">
+              <div class="meeting-date">
+                <strong>{{ meeting.sessionDate | date:'dd.MM.yyyy' }}</strong>
+                <span>{{ meeting.startTime }} - {{ meeting.endTime }}</span>
+              </div>
+              <div class="meeting-details">
+                <span class="meeting-type">{{ meeting.sessionType }}</span>
+                <span *ngIf="meeting.location" class="meeting-location">📍 {{ meeting.location }}</span>
+              </div>
+              <div class="meeting-status" [class.completed]="meeting.status === 'COMPLETED'"
+                   [class.scheduled]="meeting.status === 'SCHEDULED'">
+                {{ meeting.status === 'COMPLETED' ? 'Zakończone' : 'Zaplanowane' }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Assigned Workout Plans Section -->
+        <div class="detail-section">
+          <h3>Przypisane plany treningowe</h3>
+          
+          <!-- Assigned Plans -->
+          <div *ngIf="assignedWorkoutPlans.length === 0" class="no-data">
+            <p>Brak przypisanych planów treningowych</p>
+          </div>
+          <div *ngIf="assignedWorkoutPlans.length > 0" class="assigned-plans">
+            <div *ngFor="let assignment of assignedWorkoutPlans" class="plan-item">
+              <div class="plan-header">
+                <h4>{{ assignment.workoutPlanName }}</h4>
+                <div class="plan-actions">
+                  <button class="toggle-btn" (click)="toggleExercises(assignment.workoutPlanId)">
+                    <span class="toggle-icon">{{ isExercisesExpanded(assignment.workoutPlanId) ? '▼' : '▶' }}</span>
+                    {{ isExercisesExpanded(assignment.workoutPlanId) ? 'Ukryj' : 'Pokaż' }} ćwiczenia
+                  </button>
+                </div>
+              </div>
+              <div class="plan-info">
+                <span class="assigned-date">Przypisano: {{ assignment.assignedDate | date:'dd.MM.yyyy' }}</span>
+                <span *ngIf="assignment.notes" class="plan-notes">{{ assignment.notes }}</span>
+              </div>
+              
+              <!-- Expandable Exercises List -->
+              <div *ngIf="isExercisesExpanded(assignment.workoutPlanId) && assignment.exercises" 
+                   class="exercises-list">
+                <h5>Ćwiczenia:</h5>
+                <div *ngFor="let exercise of assignment.exercises" class="exercise-item">
+                  <div class="exercise-name">{{ exercise.name }}</div>
+                  <div class="exercise-details">
+                    <span>{{ exercise.sets }} serii</span>
+                    <span>{{ exercise.reps }} powtórzeń</span>
+                    <span *ngIf="exercise.weight">{{ exercise.weight }} kg</span>
+                    <span *ngIf="exercise.restTime">{{ exercise.restTime }}s przerwy</span>
+                  </div>
+                  <div *ngIf="exercise.notes" class="exercise-notes">{{ exercise.notes }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Assigned Nutrition Plans Section -->
+        <div class="detail-section">
+          <h3>Przypisane plany żywieniowe</h3>
+          
+          <!-- Assigned Plans -->
+          <div *ngIf="assignedNutritionPlans.length === 0" class="no-data">
+            <p>Brak przypisanych planów żywieniowych</p>
+          </div>
+          <div *ngIf="assignedNutritionPlans.length > 0" class="assigned-plans">
+            <div *ngFor="let assignment of assignedNutritionPlans" class="plan-item">
+              <div class="plan-header">
+                <h4>{{ assignment.nutritionPlanName }}</h4>
+                <div class="plan-actions">
+                  <button class="toggle-btn" (click)="toggleMeals(assignment.nutritionPlanId)">
+                    <span class="toggle-icon">{{ isMealsExpanded(assignment.nutritionPlanId) ? '▼' : '▶' }}</span>
+                    {{ isMealsExpanded(assignment.nutritionPlanId) ? 'Ukryj' : 'Pokaż' }} posiłki
+                  </button>
+                </div>
+              </div>
+              <div class="plan-info">
+                <span class="assigned-date">Przypisano: {{ assignment.assignedDate | date:'dd.MM.yyyy' }}</span>
+                <span *ngIf="assignment.notes" class="plan-notes">{{ assignment.notes }}</span>
+              </div>
+              
+              <!-- Expandable Meals List -->
+              <div *ngIf="isMealsExpanded(assignment.nutritionPlanId) && assignment.meals" 
+                   class="meals-list">
+                <h5>Posiłki:</h5>
+                <div *ngFor="let meal of assignment.meals" class="meal-item">
+                  <div class="meal-header">
+                    <div class="meal-meta">
+                      <span class="meal-day">Dzień {{ meal.dayNumber }}</span>
+                      <span class="meal-order">{{ meal.mealOrderName }}</span>
+                    </div>
+                    <div class="meal-divider"></div>
+                    <div class="meal-name">{{ meal.mealName }}</div>
+                  </div>
+                  <div class="meal-details">
+                    <span *ngIf="meal.portionSize">Porcja: {{ meal.portionSize }}</span>
+                    <span *ngIf="meal.calories && meal.calories > 0">{{ meal.calories }} kcal</span>
+                    <span *ngIf="meal.protein && meal.protein > 0">{{ meal.protein }}g białka</span>
+                    <span *ngIf="meal.carbs && meal.carbs > 0">{{ meal.carbs }}g węglowodanów</span>
+                    <span *ngIf="meal.fat && meal.fat > 0">{{ meal.fat }}g tłuszczu</span>
+                    <span *ngIf="meal.fiber && meal.fiber > 0">{{ meal.fiber }}g błonnika</span>
+                    <span *ngIf="meal.sugar && meal.sugar > 0">{{ meal.sugar }}g cukru</span>
+                    <span *ngIf="meal.sodium && meal.sodium > 0">{{ meal.sodium }}mg sodu</span>
+                    <span *ngIf="meal.prepTime && meal.prepTime > 0">{{ meal.prepTime }}min przygotowanie</span>
+                    <span *ngIf="meal.cookTime && meal.cookTime > 0">{{ meal.cookTime }}min gotowanie</span>
+                    <span *ngIf="meal.servings && meal.servings > 0">{{ meal.servings }} porcji</span>
+                    <span *ngIf="meal.isOptional" class="optional">Opcjonalny</span>
+                  </div>
+                  <div *ngIf="meal.notes" class="meal-notes">{{ meal.notes }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

@@ -86,6 +86,11 @@ export class AuthService {
   public currentUser$ = this.currentUserSubject.asObservable();
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
+  // Getter for current user
+  get currentUser(): User | null {
+    return this.currentUserSubject.value;
+  }
+
   constructor(
     private http: HttpClient,
     private router: Router

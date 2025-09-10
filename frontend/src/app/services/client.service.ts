@@ -46,7 +46,7 @@ export interface ClientStats {
   totalClients: number;
   activeClients: number;
   averageSessions: number;
-  monthlyRevenue: number;
+  totalMonthlyRevenue: number;
   paidClients: number;
   overdueClients: number;
 }
@@ -267,5 +267,101 @@ export class ClientService {
     return text.split('\n')
       .map(line => line.trim())
       .filter(line => line.length > 0);
+  }
+
+  // Get assigned workout plans for a client
+  getAssignedWorkoutPlans(clientId: number): Observable<any[]> {
+    return this.http.get<any[]>(`http://localhost:8080/api/client-workout-assignments/client/${clientId}`, {
+      headers: this.getAuthHeaders()
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // Get assigned nutrition plans for a client
+  getAssignedNutritionPlans(clientId: number): Observable<any[]> {
+    return this.http.get<any[]>(`http://localhost:8080/api/client-nutrition-assignments/client/${clientId}`, {
+      headers: this.getAuthHeaders()
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // Get workout plan assignments for a specific workout plan
+  getWorkoutPlanAssignments(workoutPlanId: number): Observable<any[]> {
+    return this.http.get<any[]>(`http://localhost:8080/api/client-workout-assignments/workout-plan/${workoutPlanId}`, {
+      headers: this.getAuthHeaders()
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // Get nutrition plan assignments for a specific nutrition plan
+  getNutritionPlanAssignments(nutritionPlanId: number): Observable<any[]> {
+    return this.http.get<any[]>(`http://localhost:8080/api/client-nutrition-assignments/nutrition-plan/${nutritionPlanId}`, {
+      headers: this.getAuthHeaders()
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // Assign workout plan to client
+  assignWorkoutPlan(clientId: number, workoutPlanId: number, notes?: string): Observable<any> {
+    const currentUser = this.authService.currentUser;
+    if (!currentUser) {
+      return throwError(() => new Error('User not authenticated'));
+    }
+
+    const request = {
+      clientId: clientId,
+      workoutPlanId: workoutPlanId,
+      assignedById: parseInt(currentUser.id),
+      startDate: new Date().toISOString().split('T')[0], // Today's date
+      notes: notes || ''
+    };
+    return this.http.post<any>(`http://localhost:8080/api/client-workout-assignments`, request, {
+      headers: this.getAuthHeaders()
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // Assign nutrition plan to client
+  assignNutritionPlan(clientId: number, nutritionPlanId: number, notes?: string): Observable<any> {
+    const currentUser = this.authService.currentUser;
+    if (!currentUser) {
+      return throwError(() => new Error('User not authenticated'));
+    }
+
+    const request = {
+      clientId: clientId,
+      nutritionPlanId: nutritionPlanId,
+      assignedById: parseInt(currentUser.id),
+      startDate: new Date().toISOString().split('T')[0], // Today's date
+      notes: notes || ''
+    };
+    return this.http.post<any>(`http://localhost:8080/api/client-nutrition-assignments`, request, {
+      headers: this.getAuthHeaders()
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // Unassign workout plan from client
+  unassignWorkoutPlan(assignmentId: number): Observable<void> {
+    return this.http.delete<void>(`http://localhost:8080/api/client-workout-assignments/${assignmentId}`, {
+      headers: this.getAuthHeaders()
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // Unassign nutrition plan from client
+  unassignNutritionPlan(assignmentId: number): Observable<void> {
+    return this.http.delete<void>(`http://localhost:8080/api/client-nutrition-assignments/${assignmentId}`, {
+      headers: this.getAuthHeaders()
+    }).pipe(
+      catchError(this.handleError)
+    );
   }
 }

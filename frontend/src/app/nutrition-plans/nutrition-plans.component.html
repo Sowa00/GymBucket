@@ -73,6 +73,9 @@
           <div class="plan-header">
             <h3>{{ plan.name }}</h3>
             <div class="plan-actions">
+              <button class="action-btn assign" (click)="openAssignModal(plan)" title="Przypisz do klientów">
+                👥
+              </button>
               <button class="action-btn edit" (click)="editPlan(plan)" title="Edytuj">
                 ✏️
               </button>
@@ -212,13 +215,11 @@
 
   <!-- Plan Modal -->
   <div *ngIf="showPlanModal" class="modal-overlay" (click)="showPlanModal = false">
-    <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-content large-modal" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h3>{{ selectedPlan ? 'Edytuj Plan' : 'Nowy Plan Żywieniowy' }}</h3>
         <button class="close-btn" (click)="showPlanModal = false">×</button>
       </div>
-
-      <div class="modal-content">
         <form (ngSubmit)="savePlan()">
           <div class="form-group">
             <label for="planName">Nazwa planu *</label>
@@ -352,6 +353,70 @@
             </label>
           </div>
 
+          <!-- Meal Assignment Section -->
+          <div class="meal-assignment-section">
+            <h4>Przypisz posiłki do planu</h4>
+            <p>Dodaj posiłki do tego planu żywieniowego:</p>
+            
+            <div class="meal-assignment-controls">
+              <div class="meal-selection">
+                <select [(ngModel)]="selectedMealForAssignment" name="selectedMeal" class="meal-select">
+                  <option value="">Wybierz posiłek</option>
+                  <option *ngFor="let meal of availableMeals" [value]="meal.id">
+                    {{ meal.name }} ({{ getMealCalories(meal.id) }} kcal)
+                  </option>
+                </select>
+                
+                <select [(ngModel)]="selectedMealDay" name="selectedDay" class="day-select">
+                  <option value="">Wybierz dzień</option>
+                  <option *ngFor="let day of getDaysArray()" [value]="day">
+                    Dzień {{ day }}
+                  </option>
+                </select>
+                
+                <select [(ngModel)]="selectedMealOrder" name="selectedOrder" class="order-select">
+                  <option value="">Wybierz porę</option>
+                  <option value="1">Śniadanie</option>
+                  <option value="2">Drugie śniadanie</option>
+                  <option value="3">Obiad</option>
+                  <option value="4">Podwieczorek</option>
+                  <option value="5">Kolacja</option>
+                </select>
+                
+                <button 
+                  type="button" 
+                  class="btn-add-meal" 
+                  (click)="addMealToPlan()"
+                  [disabled]="!selectedMealForAssignment || !selectedMealDay || !selectedMealOrder"
+                >
+                  Dodaj posiłek
+                </button>
+              </div>
+            </div>
+
+            <!-- Assigned Meals List -->
+            <div class="assigned-meals" *ngIf="planForm.meals && planForm.meals.length > 0">
+              <h5>Przypisane posiłki:</h5>
+              <div class="assigned-meals-list">
+                <div *ngFor="let meal of planForm.meals; let i = index" class="assigned-meal-item">
+                  <div class="meal-info">
+                    <span class="meal-name">{{ getMealName(meal.mealId) }}</span>
+                    <span class="meal-day">Dzień {{ meal.dayNumber }}</span>
+                    <span class="meal-order">{{ getMealOrderLabel(meal.mealOrder) }}</span>
+                    <span class="meal-calories">{{ getMealCalories(meal.mealId) }} kcal</span>
+                  </div>
+                  <button 
+                    type="button" 
+                    class="btn-remove-meal" 
+                    (click)="removeMealFromPlan(i)"
+                  >
+                    Usuń
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div class="modal-actions">
             <button type="button" class="btn-secondary" (click)="showPlanModal = false">
               Anuluj
@@ -361,7 +426,6 @@
             </button>
           </div>
         </form>
-      </div>
     </div>
   </div>
 
@@ -528,4 +592,63 @@
       </div>
     </div>
   </div>
+
+<!-- Assign to Clients Modal -->
+<div class="modal-overlay" *ngIf="showAssignModal" (click)="closeModals()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Przypisz plan: {{ selectedPlan?.name }}</h3>
+      <button class="close-btn" (click)="closeModals()">✕</button>
+    </div>
+
+    <div class="assign-content">
+      <p>Wybierz klienta, któremu chcesz przypisać ten plan żywieniowy:</p>
+
+      <!-- Client Selection Dropdown -->
+      <div class="client-selection">
+        <select [(ngModel)]="selectedClientForAssignment" class="client-select" (change)="onClientSelectionChange()">
+          <option value="">Wybierz klienta</option>
+          <option *ngFor="let client of clients" [value]="client.id">
+            {{ client.firstName }} {{ client.lastName }} ({{ client.email }})
+          </option>
+        </select>
+        
+        <button 
+          type="button" 
+          class="btn-assign-single" 
+          (click)="assignPlanToSelectedClient()"
+          [disabled]="!selectedClientForAssignment || isClientAssigned(selectedClientForAssignment)"
+        >
+          {{ isClientAssigned(selectedClientForAssignment) ? 'Już przypisany' : 'Przypisz plan' }}
+        </button>
+      </div>
+
+      <!-- Assigned Clients List -->
+      <div class="assigned-clients" *ngIf="selectedPlan && selectedClients && selectedClients.length > 0">
+        <h4>Przypisani klienci:</h4>
+        <div class="assigned-clients-list">
+          <div *ngFor="let clientId of selectedClients" class="assigned-client-item">
+            <div class="client-info">
+              <h5>{{ getClientName(clientId) }}</h5>
+              <p>ID: {{ clientId }}</p>
+            </div>
+            <button 
+              type="button" 
+              class="btn-unassign" 
+              (click)="unassignClientFromPlan(clientId)"
+            >
+              Odłącz
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="assign-actions">
+        <button type="button" class="btn-cancel" (click)="closeModals()">
+          Zamknij
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 </div>

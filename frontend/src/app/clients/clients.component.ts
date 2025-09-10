@@ -5,6 +5,9 @@ import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { ClientService } from '../services/client.service';
 import { Client } from '../services/client.service';
+import { WorkoutPlanService } from '../services/workout-plan.service';
+import { NutritionPlanService } from '../services/nutrition-plan.service';
+import { TrainingSessionService } from '../services/training-session.service';
 
 @Component({
   selector: 'app-clients',
@@ -39,9 +42,20 @@ export class ClientsComponent implements OnInit, OnDestroy {
   // Search
   searchTerm = '';
 
+  // Client Detail View
+  selectedClientForDetail: Client | null = null;
+  clientMeetings: any[] = [];
+  assignedWorkoutPlans: any[] = [];
+  assignedNutritionPlans: any[] = [];
+  expandedExercises: Set<number> = new Set();
+  expandedMeals: Set<number> = new Set();
+
   constructor(
     private clientService: ClientService,
-    private router: Router
+    private router: Router,
+    private workoutPlanService: WorkoutPlanService,
+    private nutritionPlanService: NutritionPlanService,
+    private trainingSessionService: TrainingSessionService
   ) {}
 
   ngOnInit(): void {
@@ -61,12 +75,12 @@ export class ClientsComponent implements OnInit, OnDestroy {
     this.clientService.getActiveClients()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (clients) => {
+        next: (clients: any[]) => {
           this.clients = clients;
           this.filteredClients = clients;
           this.isLoading = false;
         },
-        error: (error) => {
+        error: (error: any) => {
           this.errorMessage = 'Błąd podczas ładowania klientów';
           this.isLoading = false;
           console.error('Error loading clients:', error);
@@ -178,14 +192,14 @@ export class ClientsComponent implements OnInit, OnDestroy {
     this.clientService.createClient(clientData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (response) => {
+        next: (response: any) => {
           this.successMessage = 'Klient został dodany pomyślnie';
           this.isLoading = false;
           this.closeModals();
           this.loadClients(); // Reload the list
           this.clearSuccessMessage();
         },
-        error: (error) => {
+        error: (error: any) => {
           this.errorMessage = error.message || 'Błąd podczas dodawania klienta';
           this.isLoading = false;
           console.error('Error adding client:', error);
@@ -216,14 +230,14 @@ export class ClientsComponent implements OnInit, OnDestroy {
     this.clientService.updateClient(this.selectedClient.id, clientData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (response) => {
+        next: (response: any) => {
           this.successMessage = 'Klient został zaktualizowany pomyślnie';
           this.isLoading = false;
           this.closeModals();
           this.loadClients(); // Reload the list
           this.clearSuccessMessage();
         },
-        error: (error) => {
+        error: (error: any) => {
           this.errorMessage = error.message || 'Błąd podczas aktualizacji klienta';
           this.isLoading = false;
           console.error('Error updating client:', error);
@@ -245,7 +259,7 @@ export class ClientsComponent implements OnInit, OnDestroy {
     this.clientService.deleteClient(this.selectedClient.id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (response) => {
+        next: (response: any) => {
           console.log('Delete response received:', response);
           this.successMessage = 'Klient został usunięty pomyślnie';
           this.isLoading = false;
@@ -253,7 +267,7 @@ export class ClientsComponent implements OnInit, OnDestroy {
           this.loadClients(); // Reload the list
           this.clearSuccessMessage();
         },
-        error: (error) => {
+        error: (error: any) => {
           console.error('Delete error:', error);
           this.errorMessage = error.message || 'Błąd podczas usuwania klienta';
           this.isLoading = false;
@@ -350,5 +364,148 @@ export class ClientsComponent implements OnInit, OnDestroy {
 
   getGenderLabel(gender: string): string {
     return this.clientService.getGenderLabel(gender);
+  }
+
+  // Client Detail View Methods
+  selectClientForDetail(client: Client): void {
+    this.selectedClientForDetail = client;
+    this.loadClientDetailData();
+  }
+
+  closeClientDetail(): void {
+    this.selectedClientForDetail = null;
+    this.clientMeetings = [];
+    this.assignedWorkoutPlans = [];
+    this.assignedNutritionPlans = [];
+    this.expandedExercises.clear();
+    this.expandedMeals.clear();
+  }
+
+  loadClientDetailData(): void {
+    if (!this.selectedClientForDetail) return;
+    
+    this.loadClientMeetings();
+    this.loadAssignedWorkoutPlans();
+    this.loadAssignedNutritionPlans();
+  }
+
+  loadClientMeetings(): void {
+    if (!this.selectedClientForDetail) return;
+    
+    this.trainingSessionService.getTrainingSessionsByClient(this.selectedClientForDetail.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (sessions: any[]) => {
+          this.clientMeetings = sessions;
+        },
+        error: (error: any) => {
+          console.error('Error loading client meetings:', error);
+        }
+      });
+  }
+
+  loadAssignedWorkoutPlans(): void {
+    if (!this.selectedClientForDetail) return;
+    
+    this.clientService.getAssignedWorkoutPlans(this.selectedClientForDetail.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (assignments: any[]) => {
+          this.assignedWorkoutPlans = assignments;
+        },
+        error: (error: any) => {
+          console.error('Error loading assigned workout plans:', error);
+        }
+      });
+  }
+
+  loadAssignedNutritionPlans(): void {
+    if (!this.selectedClientForDetail) return;
+    
+    this.clientService.getAssignedNutritionPlans(this.selectedClientForDetail.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (assignments: any[]) => {
+          this.assignedNutritionPlans = assignments;
+        },
+        error: (error: any) => {
+          console.error('Error loading assigned nutrition plans:', error);
+        }
+      });
+  }
+
+
+  toggleExercises(planId: number): void {
+    if (this.expandedExercises.has(planId)) {
+      this.expandedExercises.delete(planId);
+    } else {
+      this.expandedExercises.add(planId);
+      // Fetch workout plan details if not already loaded
+      this.loadWorkoutPlanDetails(planId);
+    }
+  }
+
+  toggleMeals(planId: number): void {
+    if (this.expandedMeals.has(planId)) {
+      this.expandedMeals.delete(planId);
+    } else {
+      this.expandedMeals.add(planId);
+      // Fetch nutrition plan details if not already loaded
+      this.loadNutritionPlanDetails(planId);
+    }
+  }
+
+  isExercisesExpanded(planId: number): boolean {
+    return this.expandedExercises.has(planId);
+  }
+
+  isMealsExpanded(planId: number): boolean {
+    return this.expandedMeals.has(planId);
+  }
+
+  loadWorkoutPlanDetails(planId: number): void {
+    // Check if we already have the details for this plan
+    const assignment = this.assignedWorkoutPlans.find(a => a.workoutPlanId === planId);
+    if (assignment && assignment.exercises) {
+      return; // Already loaded
+    }
+
+    this.workoutPlanService.getWorkoutPlanById(planId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (plan: any) => {
+          // Update the assignment with exercise details
+          const assignmentIndex = this.assignedWorkoutPlans.findIndex(a => a.workoutPlanId === planId);
+          if (assignmentIndex !== -1) {
+            this.assignedWorkoutPlans[assignmentIndex].exercises = plan.exercises || [];
+          }
+        },
+        error: (error: any) => {
+          console.error('Error loading workout plan details:', error);
+        }
+      });
+  }
+
+  loadNutritionPlanDetails(planId: number): void {
+    // Check if we already have the details for this plan
+    const assignment = this.assignedNutritionPlans.find(a => a.nutritionPlanId === planId);
+    if (assignment && assignment.meals) {
+      return; // Already loaded
+    }
+
+    this.nutritionPlanService.getNutritionPlanById(planId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (plan: any) => {
+          // Update the assignment with meal details
+          const assignmentIndex = this.assignedNutritionPlans.findIndex(a => a.nutritionPlanId === planId);
+          if (assignmentIndex !== -1) {
+            this.assignedNutritionPlans[assignmentIndex].meals = plan.meals || [];
+          }
+        },
+        error: (error: any) => {
+          console.error('Error loading nutrition plan details:', error);
+        }
+      });
   }
 }

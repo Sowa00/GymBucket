@@ -37,26 +37,7 @@
       </div>
 
       <div class="header-actions">
-        <div class="search-wrapper">
-          <span class="search-icon">🔍</span>
-          <input
-            type="text"
-            placeholder="Szukaj klientów..."
-            [(ngModel)]="searchQuery"
-            (keyup.enter)="onSearch()"
-            class="search-input"
-          />
-        </div>
-
-        <button class="notification-btn" (click)="showNotifications()">
-          <span>🔔</span>
-          <span class="notification-badge"></span>
-        </button>
-
-        <button class="cta-btn" (click)="addNewClient()">
-          <span>➕</span>
-          <span>Nowy Klient</span>
-        </button>
+        <!-- Header actions removed for cleaner interface -->
       </div>
     </div>
 
@@ -81,18 +62,11 @@
       <div class="stat-card">
         <div class="stat-icon">💰</div>
         <div class="stat-content">
-          <h3>{{ stats.weeklyRevenue }}</h3>
-          <p>Tygodniowy przychód</p>
+          <h3>{{ stats.monthlyRevenue }}</h3>
+          <p>Miesięczny przychód</p>
         </div>
       </div>
 
-      <div class="stat-card">
-        <div class="stat-icon">📊</div>
-        <div class="stat-content">
-          <h3>{{ stats.completionRate }}</h3>
-          <p>Wskaźnik ukończenia</p>
-        </div>
-      </div>
     </div>
 
     <!-- Content Grid -->
@@ -101,74 +75,52 @@
       <div class="schedule-card">
         <div class="card-header">
           <h3>Dzisiejszy Harmonogram</h3>
-          <button class="view-all-btn">Zobacz wszystkie</button>
         </div>
 
         <div class="schedule-list">
           <div
-            *ngFor="let client of upcomingClients"
+            *ngFor="let client of upcomingClients; let i = index"
             class="schedule-item"
-            (click)="viewClientDetails(client)"
           >
-            <div class="client-info">
-              <div class="client-avatar">{{ getInitials(client.name) }}</div>
-              <div class="client-details">
-                <h4>{{ client.name }}</h4>
-                <p>{{ client.type }}</p>
+            <div class="schedule-main">
+              <div class="client-info" (click)="viewClientDetails(client)">
+                <div class="client-avatar">{{ getInitials(client.name) }}</div>
+                <div class="client-details">
+                  <h4>{{ client.name }}</h4>
+                  <p>{{ client.type }}</p>
+                </div>
+              </div>
+              <div class="session-actions">
+                <div class="time-bubble">
+                  <span class="time-label">Godzina spotkania</span>
+                  <span class="time-value">{{ client.time }}</span>
+                </div>
+                <button class="details-btn" (click)="toggleMeetingDetails(i, $event)">Szczegóły</button>
               </div>
             </div>
-            <div class="session-time">
-              <span>{{ client.time }}</span>
-              <button class="details-btn">Szczegóły</button>
+            
+            <!-- Expanded meeting details -->
+            <div *ngIf="expandedMeetings.has(i)" class="meeting-details">
+              <div class="detail-section">
+                <div *ngIf="client.location" class="detail-item">
+                  <h6>Lokalizacja</h6>
+                  <p>{{ client.location }}</p>
+                </div>
+                <div *ngIf="client.notes" class="detail-item">
+                  <h6>Notatki</h6>
+                  <p>{{ client.notes }}</p>
+                </div>
+                <div *ngIf="client.duration" class="detail-item">
+                  <h6>Czas trwania</h6>
+                  <p>{{ client.duration }}</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <button class="add-session-btn" (click)="addNewSession()">
-          ➕ Dodaj Nową Sesję
-        </button>
       </div>
 
-      <!-- Recent Activity -->
-      <div class="activity-card">
-        <div class="card-header">
-          <h3>Ostatnia Aktywność Klientów</h3>
-        </div>
-
-        <div class="activity-list">
-          <div
-            *ngFor="let client of recentActivity"
-            class="activity-item"
-          >
-            <div class="activity-avatar">{{ getInitials(client.name) }}</div>
-            <div class="activity-details">
-              <h4>{{ client.name }}</h4>
-              <p>{{ client.lastSession }}</p>
-              <span class="progress-badge">{{ client.progress }}</span>
-            </div>
-          </div>
-        </div>
-
-        <button class="view-clients-btn" (click)="viewAllClients()">
-          Zobacz Wszystkich Klientów
-        </button>
-      </div>
-    </div>
-
-    <!-- Quick Actions -->
-    <div class="quick-actions">
-      <div
-        *ngFor="let action of quickActions"
-        class="action-card"
-        [class]="'action-card-' + action.color"
-        (click)="executeQuickAction(action)"
-      >
-        <div class="action-icon">{{ action.icon }}</div>
-        <div class="action-content">
-          <h3>{{ action.title }}</h3>
-          <p>{{ action.description }}</p>
-        </div>
-      </div>
     </div>
   </div>
 </div>

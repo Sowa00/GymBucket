@@ -14,12 +14,15 @@ interface Client {
   type: string;
   lastSession?: string;
   progress?: string;
+  duration?: string;
+  location?: string;
+  notes?: string;
 }
 
 interface Stats {
   totalClients: number;
   todaysSessions: number;
-  weeklyRevenue: string;
+  monthlyRevenue: string;
   completionRate: string;
 }
 
@@ -40,7 +43,7 @@ export class HomepageComponent implements OnInit, OnDestroy {
   stats: Stats = {
     totalClients: 0,
     todaysSessions: 0,
-    weeklyRevenue: '0 zł',
+    monthlyRevenue: '0 zł',
     completionRate: '0%'
   };
 
@@ -51,6 +54,7 @@ export class HomepageComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   upcomingClients: Client[] = [];
+  expandedMeetings = new Set<number>();
 
   recentActivity: Client[] = [];
 
@@ -116,6 +120,10 @@ export class HomepageComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.errorMessage = '';
 
+    // Reset session data to prevent race conditions
+    this.realSessions = [];
+    this.upcomingClients = [];
+
     // Load client statistics
     this.clientService.getClientStats()
       .pipe(takeUntil(this.destroy$))
@@ -138,7 +146,7 @@ export class HomepageComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (clients) => {
           this.realClients = clients;
-          this.updateUpcomingClients(clients);
+          // Don't call updateUpcomingClients here - let updateTodaysSessions handle it
         },
         error: (error) => {
           console.error('Error loading clients:', error);
@@ -164,37 +172,41 @@ export class HomepageComponent implements OnInit, OnDestroy {
     this.stats = {
       totalClients: stats.totalClients,
       todaysSessions: this.realSessions.length,
-      weeklyRevenue: `${stats.monthlyRevenue.toFixed(0)} zł`,
+      monthlyRevenue: `${stats.totalMonthlyRevenue.toFixed(0)} zł`,
       completionRate: stats.totalClients > 0 ? `${Math.round((stats.paidClients / stats.totalClients) * 100)}%` : '0%'
     };
   }
 
   // Update upcoming clients with real data
   updateUpcomingClients(clients: ApiClient[]): void {
-    // For now, show first 3 active clients as "upcoming"
-    // In a real app, this would be actual scheduled sessions
-    this.upcomingClients = clients.slice(0, 3).map((client, index) => ({
-      id: client.id,
-      name: this.clientService.getClientFullName(client),
-      time: `${9 + index * 2}:00`, // Mock times
-      type: 'Trening siłowy' // Mock type
-    }));
+    // This method is no longer used - sessions are handled by updateTodaysSessions
+    // Keeping for potential future use
   }
 
   // Update today's sessions with real data
   updateTodaysSessions(sessions: TrainingSession[]): void {
     // Update the stats with real session count
+    this.stats.todaysSessions = sessions.length;
+    
     if (this.clientStats) {
       this.updateStatsDisplay(this.clientStats);
     }
 
     // Update upcoming clients with real session data
-    this.upcomingClients = sessions.slice(0, 3).map((session) => ({
-      id: session.id,
-      name: session.clientName,
-      time: this.trainingSessionService.formatSessionTime(session.startTime, session.endTime),
-      type: session.sessionType
-    }));
+    if (sessions.length > 0) {
+      this.upcomingClients = sessions.slice(0, 3).map((session) => ({
+        id: session.id,
+        name: session.clientName,
+        time: this.trainingSessionService.formatSessionTime(session.startTime, session.endTime),
+        type: session.sessionType,
+        location: session.location,
+        notes: session.notes,
+        duration: this.calculateDuration(session.startTime, session.endTime)
+      }));
+    } else {
+      // No sessions today - show empty state
+      this.upcomingClients = [];
+    }
   }
 
   selectTab(tabId: string): void {
@@ -266,6 +278,35 @@ export class HomepageComponent implements OnInit, OnDestroy {
       .map(part => part.charAt(0))
       .join('')
       .toUpperCase();
+  }
+
+  toggleMeetingDetails(index: number, event: Event): void {
+    event.stopPropagation(); // Prevent triggering the parent click event
+    
+    if (this.expandedMeetings.has(index)) {
+      this.expandedMeetings.delete(index);
+    } else {
+      this.expandedMeetings.add(index);
+    }
+  }
+
+  calculateDuration(startTime: string, endTime: string): string {
+    const start = new Date(`2000-01-01T${startTime}`);
+    const end = new Date(`2000-01-01T${endTime}`);
+    const diffMs = end.getTime() - start.getTime();
+    const diffMinutes = Math.round(diffMs / (1000 * 60));
+    
+    if (diffMinutes < 60) {
+      return `${diffMinutes} minut`;
+    } else {
+      const hours = Math.floor(diffMinutes / 60);
+      const minutes = diffMinutes % 60;
+      if (minutes === 0) {
+        return `${hours} ${hours === 1 ? 'godzina' : hours < 5 ? 'godziny' : 'godzin'}`;
+      } else {
+        return `${hours}h ${minutes}min`;
+      }
+    }
   }
 
   logout(): void {

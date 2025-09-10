@@ -1,11 +1,8 @@
 package gym.backend.service;
 
-import gym.backend.dto.ClientDTO;
-import gym.backend.dto.ClientRequestDTO;
-import gym.backend.model.Client;
-import gym.backend.model.User;
-import gym.backend.repository.ClientRepository;
-import gym.backend.repository.UserRepository;
+import gym.backend.dto.*;
+import gym.backend.model.*;
+import gym.backend.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +15,6 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,11 +25,24 @@ public class ClientService {
 
     private final ClientRepository clientRepository;
     private final UserRepository userRepository;
+    private final ClientWorkoutAssignmentRepository clientWorkoutAssignmentRepository;
+    private final ClientNutritionAssignmentRepository clientNutritionAssignmentRepository;
+    private final WorkoutPlanRepository workoutPlanRepository;
+    private final NutritionPlanRepository nutritionPlanRepository;
 
     @Autowired
-    public ClientService(ClientRepository clientRepository, UserRepository userRepository) {
+    public ClientService(ClientRepository clientRepository, 
+                        UserRepository userRepository,
+                        ClientWorkoutAssignmentRepository clientWorkoutAssignmentRepository,
+                        ClientNutritionAssignmentRepository clientNutritionAssignmentRepository,
+                        WorkoutPlanRepository workoutPlanRepository,
+                        NutritionPlanRepository nutritionPlanRepository) {
         this.clientRepository = clientRepository;
         this.userRepository = userRepository;
+        this.clientWorkoutAssignmentRepository = clientWorkoutAssignmentRepository;
+        this.clientNutritionAssignmentRepository = clientNutritionAssignmentRepository;
+        this.workoutPlanRepository = workoutPlanRepository;
+        this.nutritionPlanRepository = nutritionPlanRepository;
     }
 
     // Create a new client
@@ -422,5 +431,185 @@ public class ClientService {
         }
         String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
         return email.matches(emailRegex);
+    }
+
+    // Get assigned workout plans for a client
+    public List<ClientWorkoutAssignmentDTO> getAssignedWorkoutPlans(Long clientId) {
+        logger.info("Getting assigned workout plans for client: {}", clientId);
+        
+        Client client = clientRepository.findById(clientId)
+                .orElseThrow(() -> new IllegalArgumentException("Client not found with id: " + clientId));
+        
+        return clientWorkoutAssignmentRepository.findByClient(client)
+                .stream()
+                .map(this::convertToWorkoutAssignmentDTO)
+                .collect(Collectors.toList());
+    }
+
+    // Get assigned nutrition plans for a client
+    public List<ClientNutritionAssignmentDTO> getAssignedNutritionPlans(Long clientId) {
+        logger.info("Getting assigned nutrition plans for client: {}", clientId);
+        
+        Client client = clientRepository.findById(clientId)
+                .orElseThrow(() -> new IllegalArgumentException("Client not found with id: " + clientId));
+        
+        return clientNutritionAssignmentRepository.findByClient(client)
+                .stream()
+                .map(this::convertToNutritionAssignmentDTO)
+                .collect(Collectors.toList());
+    }
+
+    // Get workout plan assignments for a specific workout plan
+    public List<ClientWorkoutAssignmentDTO> getWorkoutPlanAssignments(Long workoutPlanId) {
+        logger.info("Getting workout plan assignments for workout plan: {}", workoutPlanId);
+        
+        WorkoutPlan workoutPlan = workoutPlanRepository.findById(workoutPlanId)
+                .orElseThrow(() -> new IllegalArgumentException("Workout plan not found with id: " + workoutPlanId));
+        
+        return clientWorkoutAssignmentRepository.findByWorkoutPlan(workoutPlan)
+                .stream()
+                .map(this::convertToWorkoutAssignmentDTO)
+                .collect(Collectors.toList());
+    }
+
+    // Get nutrition plan assignments for a specific nutrition plan
+    public List<ClientNutritionAssignmentDTO> getNutritionPlanAssignments(Long nutritionPlanId) {
+        logger.info("Getting nutrition plan assignments for nutrition plan: {}", nutritionPlanId);
+        
+        NutritionPlan nutritionPlan = nutritionPlanRepository.findById(nutritionPlanId)
+                .orElseThrow(() -> new IllegalArgumentException("Nutrition plan not found with id: " + nutritionPlanId));
+        
+        return clientNutritionAssignmentRepository.findByNutritionPlan(nutritionPlan)
+                .stream()
+                .map(this::convertToNutritionAssignmentDTO)
+                .collect(Collectors.toList());
+    }
+
+    // Assign workout plan to client
+    public ClientWorkoutAssignmentDTO assignWorkoutPlan(ClientWorkoutAssignmentRequestDTO requestDTO) {
+        logger.info("Assigning workout plan {} to client {}", requestDTO.getWorkoutPlanId(), requestDTO.getClientId());
+        
+        Client client = clientRepository.findById(requestDTO.getClientId())
+                .orElseThrow(() -> new IllegalArgumentException("Client not found with id: " + requestDTO.getClientId()));
+        
+        WorkoutPlan workoutPlan = workoutPlanRepository.findById(requestDTO.getWorkoutPlanId())
+                .orElseThrow(() -> new IllegalArgumentException("Workout plan not found with id: " + requestDTO.getWorkoutPlanId()));
+        
+        User assignedBy = userRepository.findById(requestDTO.getAssignedById())
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + requestDTO.getAssignedById()));
+        
+        ClientWorkoutAssignment assignment = new ClientWorkoutAssignment();
+        assignment.setClient(client);
+        assignment.setWorkoutPlan(workoutPlan);
+        assignment.setAssignedBy(assignedBy);
+        assignment.setAssignedDate(LocalDate.now());
+        assignment.setStartDate(requestDTO.getStartDate() != null ? requestDTO.getStartDate() : LocalDate.now());
+        assignment.setEndDate(requestDTO.getEndDate());
+        assignment.setStatus(requestDTO.getStatus());
+        assignment.setNotes(requestDTO.getNotes());
+        assignment.setProgressNotes(requestDTO.getProgressNotes());
+        assignment.setCompletionPercentage(requestDTO.getCompletionPercentage());
+        
+        ClientWorkoutAssignment savedAssignment = clientWorkoutAssignmentRepository.save(assignment);
+        return convertToWorkoutAssignmentDTO(savedAssignment);
+    }
+
+    // Assign nutrition plan to client
+    public ClientNutritionAssignmentDTO assignNutritionPlan(ClientNutritionAssignmentRequestDTO requestDTO) {
+        logger.info("Assigning nutrition plan {} to client {}", requestDTO.getNutritionPlanId(), requestDTO.getClientId());
+        
+        Client client = clientRepository.findById(requestDTO.getClientId())
+                .orElseThrow(() -> new IllegalArgumentException("Client not found with id: " + requestDTO.getClientId()));
+        
+        NutritionPlan nutritionPlan = nutritionPlanRepository.findById(requestDTO.getNutritionPlanId())
+                .orElseThrow(() -> new IllegalArgumentException("Nutrition plan not found with id: " + requestDTO.getNutritionPlanId()));
+        
+        User assignedBy = userRepository.findById(requestDTO.getAssignedById())
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + requestDTO.getAssignedById()));
+        
+        ClientNutritionAssignment assignment = new ClientNutritionAssignment();
+        assignment.setClient(client);
+        assignment.setNutritionPlan(nutritionPlan);
+        assignment.setAssignedBy(assignedBy);
+        assignment.setAssignedDate(LocalDate.now());
+        assignment.setStartDate(requestDTO.getStartDate() != null ? requestDTO.getStartDate() : LocalDate.now());
+        assignment.setEndDate(requestDTO.getEndDate());
+        assignment.setStatus(requestDTO.getStatus());
+        assignment.setNotes(requestDTO.getNotes());
+        assignment.setProgressNotes(requestDTO.getProgressNotes());
+        assignment.setCompletionPercentage(requestDTO.getCompletionPercentage());
+        
+        ClientNutritionAssignment savedAssignment = clientNutritionAssignmentRepository.save(assignment);
+        return convertToNutritionAssignmentDTO(savedAssignment);
+    }
+
+    // Unassign workout plan from client
+    public void unassignWorkoutPlan(Long assignmentId) {
+        logger.info("Unassigning workout plan assignment: {}", assignmentId);
+        
+        ClientWorkoutAssignment assignment = clientWorkoutAssignmentRepository.findById(assignmentId)
+                .orElseThrow(() -> new IllegalArgumentException("Workout assignment not found with id: " + assignmentId));
+        
+        clientWorkoutAssignmentRepository.delete(assignment);
+    }
+
+    // Unassign nutrition plan from client
+    public void unassignNutritionPlan(Long assignmentId) {
+        logger.info("Unassigning nutrition plan assignment: {}", assignmentId);
+        
+        ClientNutritionAssignment assignment = clientNutritionAssignmentRepository.findById(assignmentId)
+                .orElseThrow(() -> new IllegalArgumentException("Nutrition assignment not found with id: " + assignmentId));
+        
+        clientNutritionAssignmentRepository.delete(assignment);
+    }
+
+    // Convert ClientWorkoutAssignment to DTO
+    private ClientWorkoutAssignmentDTO convertToWorkoutAssignmentDTO(ClientWorkoutAssignment assignment) {
+        ClientWorkoutAssignmentDTO dto = new ClientWorkoutAssignmentDTO();
+        dto.setId(assignment.getId());
+        dto.setClientId(assignment.getClient().getId());
+        dto.setClientName(assignment.getClient().getFullName());
+        dto.setWorkoutPlanId(assignment.getWorkoutPlan().getId());
+        dto.setWorkoutPlanName(assignment.getWorkoutPlan().getName());
+        dto.setAssignedById(assignment.getAssignedBy().getId());
+        dto.setAssignedByName(assignment.getAssignedBy().getFullName());
+        dto.setAssignedDate(assignment.getAssignedDate());
+        dto.setStartDate(assignment.getStartDate());
+        dto.setEndDate(assignment.getEndDate());
+        dto.setStatus(assignment.getStatus());
+        dto.setNotes(assignment.getNotes());
+        dto.setProgressNotes(assignment.getProgressNotes());
+        dto.setCompletionPercentage(assignment.getCompletionPercentage());
+        dto.setLastWorkoutDate(assignment.getLastWorkoutDate());
+        dto.setTotalWorkoutsCompleted(assignment.getTotalWorkoutsCompleted());
+        dto.setCreatedAt(assignment.getCreatedAt());
+        dto.setUpdatedAt(assignment.getUpdatedAt());
+        
+        return dto;
+    }
+
+    // Convert ClientNutritionAssignment to DTO
+    private ClientNutritionAssignmentDTO convertToNutritionAssignmentDTO(ClientNutritionAssignment assignment) {
+        ClientNutritionAssignmentDTO dto = new ClientNutritionAssignmentDTO();
+        dto.setId(assignment.getId());
+        dto.setClientId(assignment.getClient().getId());
+        dto.setClientName(assignment.getClient().getFullName());
+        dto.setNutritionPlanId(assignment.getNutritionPlan().getId());
+        dto.setNutritionPlanName(assignment.getNutritionPlan().getName());
+        dto.setAssignedById(assignment.getAssignedBy().getId());
+        dto.setAssignedByName(assignment.getAssignedBy().getFullName());
+        dto.setAssignedDate(assignment.getAssignedDate());
+        dto.setStartDate(assignment.getStartDate());
+        dto.setEndDate(assignment.getEndDate());
+        dto.setStatus(assignment.getStatus());
+        dto.setNotes(assignment.getNotes());
+        dto.setProgressNotes(assignment.getProgressNotes());
+        dto.setCompletionPercentage(assignment.getCompletionPercentage());
+        dto.setLastMealLoggedDate(assignment.getLastMealLoggedDate());
+        dto.setTotalMealsLogged(assignment.getTotalMealsLogged());
+        dto.setCreatedAt(assignment.getCreatedAt());
+        dto.setUpdatedAt(assignment.getUpdatedAt());
+        
+        return dto;
     }
 }

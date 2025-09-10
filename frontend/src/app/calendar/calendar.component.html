@@ -6,11 +6,8 @@
   </div>
 
   <nav class="navbar-nav">
-    <button class="nav-link" (click)="goToHomepage()">
-      🏠 Dashboard
-    </button>
-    <button class="nav-link active">
-      📅 Kalendarz
+    <button class="back-btn" (click)="goToHomepage()" title="Powrót do dashboard">
+      <span>←</span>
     </button>
     <button class="nav-link" (click)="logout()">
       🚪 Wyloguj
@@ -182,9 +179,9 @@
   <div class="trainings-sidebar">
     <h3>Nadchodzące treningi</h3>
 
-    <div class="trainings-list">
+    <div class="trainings-list scrollable">
       <div
-        *ngFor="let training of filteredTrainings.slice(0, 5)"
+        *ngFor="let training of filteredTrainings"
         class="training-card"
         (click)="openTrainingDetails(training)"
       >
@@ -202,10 +199,6 @@
         </div>
       </div>
     </div>
-
-    <button class="view-all-btn">
-      Zobacz wszystkie treningi
-    </button>
   </div>
 </div>
 
@@ -269,14 +262,18 @@
 
       <div class="form-group">
         <label>Klient</label>
-        <input
-          type="text"
-          [(ngModel)]="newTraining.clientName"
-          name="clientName"
-          placeholder="Imię i nazwisko klienta"
+        <select
+          [(ngModel)]="selectedClient"
+          name="selectedClient"
+          (change)="onClientSelectionChange()"
           required
-          class="form-input"
-        />
+          class="form-select"
+        >
+          <option value="">Wybierz klienta</option>
+          <option *ngFor="let client of clients" [value]="client.id">
+            {{ client.firstName }} {{ client.lastName }} ({{ client.email }})
+          </option>
+        </select>
       </div>
 
       <div class="form-group">

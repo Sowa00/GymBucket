@@ -209,4 +209,13 @@ export class TrainingSessionService {
     console.error('Training Session Service Error:', error);
     return throwError({ message: errorMessage, originalError: error });
   };
+
+  // Get training sessions by client ID
+  getTrainingSessionsByClient(clientId: number): Observable<TrainingSession[]> {
+    return this.http.get<TrainingSession[]>(`${this.API_URL}/client/${clientId}`, {
+      headers: this.getAuthHeaders()
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
 }

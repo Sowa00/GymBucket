@@ -87,6 +87,10 @@ export class CalendarComponent implements OnInit {
   // Training sessions - will be loaded from API
   trainings: Training[] = [];
 
+  // Client selection
+  clients: any[] = [];
+  selectedClient: string = '';
+
   monthNames = [
     'Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec',
     'Lipiec', 'Sierpień', 'Wrzesień', 'Październik', 'Listopad', 'Grudzień'
@@ -104,6 +108,7 @@ export class CalendarComponent implements OnInit {
   ngOnInit(): void {
     this.generateTimeSlots();
     this.loadTrainings();
+    this.loadClients();
     this.generateCalendar();
     this.generateWeekView();
   }
@@ -261,6 +266,7 @@ export class CalendarComponent implements OnInit {
     };
     this.selectedDurationOption = 60;
     this.customDuration = 60;
+    this.selectedClient = '';
     this.validationErrors = [];
     this.showAddModal = true;
   }
@@ -302,8 +308,8 @@ export class CalendarComponent implements OnInit {
       this.validationErrors.push('Godzina rozpoczęcia jest wymagana');
     }
 
-    if (!this.newTraining.clientName?.trim()) {
-      this.validationErrors.push('Imię klienta jest wymagane');
+    if (!this.selectedClient) {
+      this.validationErrors.push('Klient jest wymagany');
     }
 
     if (!this.newTraining.location?.trim()) {
@@ -420,6 +426,7 @@ export class CalendarComponent implements OnInit {
     this.newTraining = { ...training };
     this.selectedDurationOption = training.duration;
     this.customDuration = training.duration;
+    this.selectedClient = this.getClientIdByName(training.clientName);
     this.validationErrors = [];
     this.closeDetailsModal();
     this.showAddModal = true;
@@ -439,6 +446,7 @@ export class CalendarComponent implements OnInit {
     this.showAddModal = false;
     this.newTraining = {};
     this.editingTraining = null;
+    this.selectedClient = '';
     this.validationErrors = [];
   }
 
@@ -552,6 +560,35 @@ export class CalendarComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 
+  // Client selection methods
+  loadClients(): void {
+    this.clientService.getAllClients().subscribe({
+      next: (clients: any[]) => {
+        this.clients = clients;
+      },
+      error: (error: any) => {
+        console.error('Error loading clients:', error);
+        this.showError('Błąd podczas ładowania klientów');
+      }
+    });
+  }
+
+  onClientSelectionChange(): void {
+    if (this.selectedClient) {
+      const client = this.clients.find(c => c.id.toString() === this.selectedClient);
+      if (client) {
+        this.newTraining.clientName = `${client.firstName} ${client.lastName}`;
+      }
+    } else {
+      this.newTraining.clientName = '';
+    }
+  }
+
+  getClientIdByName(clientName: string): string {
+    const client = this.clients.find(c => `${c.firstName} ${c.lastName}` === clientName);
+    return client ? client.id.toString() : '';
+  }
+
   // API methods - connected to backend
   async loadTrainings(): Promise<void> {
     try {
@@ -621,7 +658,7 @@ export class CalendarComponent implements OnInit {
       sessionType: 'Trening personalny', // Default type
       location: training.location,
       notes: training.notes,
-      clientId: 1, // TODO: Get actual client ID from client selection
+      clientId: this.selectedClient ? parseInt(this.selectedClient) : 1,
       price: 0, // TODO: Add price field to form
       isPaid: false
     };

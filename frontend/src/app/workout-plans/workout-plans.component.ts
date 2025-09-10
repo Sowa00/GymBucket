@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { WorkoutPlanService, WorkoutPlan as ServiceWorkoutPlan, WorkoutPlanRequest } from '../services/workout-plan.service';
 import { ExerciseService, Exercise as ServiceExercise } from '../services/exercise.service';
+import { ClientService } from '../services/client.service';
 
 interface Exercise {
   id: string;
@@ -47,14 +48,6 @@ interface WorkoutPlan {
   clientAssignments?: string[]; // client IDs
 }
 
-interface WorkoutPlanTemplate {
-  id: string;
-  name: string;
-  description: string;
-  category: 'strength' | 'cardio' | 'flexibility' | 'mixed';
-  exercises: Omit<WorkoutPlanExercise, 'exerciseId' | 'exercise'>[];
-  isSystem: boolean;
-}
 
 @Component({
   selector: 'app-workout-plans',
@@ -66,7 +59,7 @@ interface WorkoutPlanTemplate {
 export class WorkoutPlansComponent implements OnInit {
   // View modes
   viewMode: 'list' | 'grid' | 'detailed' = 'grid';
-  activeTab: 'plans' | 'exercises' | 'templates' = 'plans';
+  activeTab: 'plans' | 'exercises' = 'plans';
 
   // Filters and search
   searchTerm = '';
@@ -85,6 +78,15 @@ export class WorkoutPlansComponent implements OnInit {
   editingPlan: WorkoutPlan | null = null;
   selectedPlan: WorkoutPlan | null = null;
   selectedExercise: Exercise | null = null;
+
+  // Assignment functionality
+  clients: any[] = [];
+  selectedClientForAssignment: string = '';
+  selectedClients: string[] = [];
+
+  // Messages
+  successMessage = '';
+  errorMessage = '';
 
   // Form data
   newPlan: Partial<WorkoutPlan> = {
@@ -161,18 +163,12 @@ export class WorkoutPlansComponent implements OnInit {
   // Exercises - will be loaded from API
   exercises: Exercise[] = [];
 
-  // Templates - will be loaded from API
-  templates: WorkoutPlanTemplate[] = [];
-
-  // Clients for assignment - will be loaded from API
-  clients: any[] = [];
-
-  selectedClients: string[] = [];
 
   constructor(
     private router: Router,
     private workoutPlanService: WorkoutPlanService,
-    private exerciseService: ExerciseService
+    private exerciseService: ExerciseService,
+    private clientService: ClientService
   ) {}
 
   ngOnInit(): void {
@@ -255,23 +251,6 @@ export class WorkoutPlansComponent implements OnInit {
     this.showExerciseModal = true;
   }
 
-  openAssignModal(plan: WorkoutPlan): void {
-    this.selectedPlan = plan;
-    this.selectedClients = [...(plan.clientAssignments || [])];
-    this.showAssignModal = true;
-  }
-
-  closeModals(): void {
-    this.showCreatePlanModal = false;
-    this.showExerciseModal = false;
-    this.showAssignModal = false;
-    this.showPlanDetailsModal = false;
-    this.showCreateExerciseModal = false;
-    this.selectedPlan = null;
-    this.selectedExercise = null;
-    this.editingPlan = null;
-    this.validationErrors = [];
-  }
 
   // Plan management
   validatePlan(): boolean {
@@ -462,30 +441,6 @@ export class WorkoutPlansComponent implements OnInit {
     }
   }
 
-  // Client assignment
-  toggleClientSelection(clientId: string): void {
-    const index = this.selectedClients.indexOf(clientId);
-    if (index > -1) {
-      this.selectedClients.splice(index, 1);
-    } else {
-      this.selectedClients.push(clientId);
-    }
-  }
-
-  assignPlanToClients(): void {
-    if (this.selectedPlan) {
-      this.selectedPlan.clientAssignments = [...this.selectedClients];
-
-      // Update in main array
-      const index = this.workoutPlans.findIndex(p => p.id === this.selectedPlan!.id);
-      if (index !== -1) {
-        this.workoutPlans[index] = this.selectedPlan;
-      }
-
-      this.showSuccess(`Plan przypisany do ${this.selectedClients.length} klientów`);
-      this.closeModals();
-    }
-  }
 
   // Form handling methods
   onSubmitPlan(event: Event): void {
@@ -780,5 +735,119 @@ export class WorkoutPlansComponent implements OnInit {
       instructions: [serviceExercise.instructions], // Convert string to array
       difficulty: serviceExercise.difficulty.toLowerCase() as 'beginner' | 'intermediate' | 'advanced'
     };
+  }
+
+  // Assignment functionality
+  openAssignModal(plan: WorkoutPlan): void {
+    this.selectedPlan = plan;
+    this.selectedClients = [];
+    this.selectedClientForAssignment = '';
+    this.loadClients();
+    this.loadPlanAssignments(parseInt(plan.id));
+    this.showAssignModal = true;
+  }
+
+  loadPlanAssignments(planId: number): void {
+    this.clientService.getWorkoutPlanAssignments(planId).subscribe({
+      next: (assignments: any[]) => {
+        this.selectedClients = assignments.map(assignment => assignment.clientId.toString());
+      },
+      error: (error: any) => {
+        console.error('Error loading plan assignments:', error);
+      }
+    });
+  }
+
+  closeAssignModal(): void {
+    this.showAssignModal = false;
+    this.selectedPlan = null;
+    this.selectedClients = [];
+    this.selectedClientForAssignment = '';
+  }
+
+  loadClients(): void {
+    this.clientService.getAllClients().subscribe({
+      next: (clients: any[]) => {
+        this.clients = clients;
+      },
+      error: (error: any) => {
+        console.error('Error loading clients:', error);
+      }
+    });
+  }
+
+  onClientSelectionChange(): void {
+    // This method is called when the client selection changes
+  }
+
+  isClientAssigned(clientId: string): boolean {
+    return this.selectedClients.includes(clientId);
+  }
+
+  assignPlanToSelectedClient(): void {
+    if (!this.selectedPlan || !this.selectedClientForAssignment) return;
+
+    this.clientService.assignWorkoutPlan(
+      parseInt(this.selectedClientForAssignment),
+      parseInt(this.selectedPlan.id)
+    ).subscribe({
+      next: () => {
+        this.selectedClients.push(this.selectedClientForAssignment);
+        this.selectedClientForAssignment = '';
+        this.successMessage = 'Plan treningowy został przypisany';
+        setTimeout(() => this.successMessage = '', 3000);
+      },
+      error: (error: any) => {
+        this.errorMessage = 'Błąd podczas przypisywania planu treningowego';
+        console.error('Error assigning workout plan:', error);
+      }
+    });
+  }
+
+  unassignClientFromPlan(clientId: string): void {
+    if (!this.selectedPlan) return;
+
+    // Find the assignment ID and unassign
+    this.clientService.getWorkoutPlanAssignments(parseInt(this.selectedPlan.id)).subscribe({
+      next: (assignments: any[]) => {
+        const assignment = assignments.find(a => a.clientId.toString() === clientId);
+        if (assignment) {
+          this.clientService.unassignWorkoutPlan(assignment.id).subscribe({
+            next: () => {
+              this.selectedClients = this.selectedClients.filter(id => id !== clientId);
+              this.successMessage = 'Klient został odłączony od planu';
+              setTimeout(() => this.successMessage = '', 3000);
+            },
+            error: (error: any) => {
+              this.errorMessage = 'Błąd podczas odłączania klienta od planu';
+              console.error('Error unassigning workout plan:', error);
+            }
+          });
+        }
+      },
+      error: (error: any) => {
+        this.errorMessage = 'Błąd podczas ładowania przypisań';
+        console.error('Error loading assignments:', error);
+      }
+    });
+  }
+
+  getClientName(clientId: string): string {
+    const client = this.clients.find(c => c.id.toString() === clientId);
+    return client ? `${client.firstName} ${client.lastName}` : `Klient ${clientId}`;
+  }
+
+  // Modal management
+  closeModals(): void {
+    this.showCreatePlanModal = false;
+    this.showExerciseModal = false;
+    this.showAssignModal = false;
+    this.showPlanDetailsModal = false;
+    this.showCreateExerciseModal = false;
+    this.editingPlan = null;
+    this.selectedPlan = null;
+    this.selectedExercise = null;
+    this.selectedClients = [];
+    this.selectedClientForAssignment = '';
   }
 }
