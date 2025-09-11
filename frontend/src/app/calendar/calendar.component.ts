@@ -111,12 +111,17 @@ export class CalendarComponent implements OnInit {
     this.loadClients();
     this.generateCalendar();
     this.generateWeekView();
+    
+    // Ensure selectedDate is set for week/day views
+    if (!this.selectedDate) {
+      this.selectedDate = new Date();
+    }
   }
 
   // Generate time slots for day/week view
   generateTimeSlots(): void {
     this.timeSlots = [];
-    for (let hour = 6; hour <= 22; hour++) {
+    for (let hour = 0; hour <= 23; hour++) {
       for (let minute = 0; minute < 60; minute += 30) {
         const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
         this.timeSlots.push(timeStr);
@@ -222,6 +227,30 @@ export class CalendarComponent implements OnInit {
     this.generateWeekView();
   }
 
+  previousDay(): void {
+    const current = this.selectedDate || this.currentDate;
+    current.setDate(current.getDate() - 1);
+    this.generateWeekView();
+  }
+
+  nextDay(): void {
+    const current = this.selectedDate || this.currentDate;
+    current.setDate(current.getDate() + 1);
+    this.generateWeekView();
+  }
+
+  getWeekRange(): string {
+    if (!this.weekDays.length) return '';
+    
+    const startDate = this.weekDays[0].date;
+    const endDate = this.weekDays[6].date;
+    
+    const startStr = startDate.toLocaleDateString('pl-PL', { day: 'numeric', month: 'short' });
+    const endStr = endDate.toLocaleDateString('pl-PL', { day: 'numeric', month: 'short', year: 'numeric' });
+    
+    return `${startStr} - ${endStr}`;
+  }
+
   // Select day
   selectDay(day: CalendarDay): void {
     // Don't allow selecting past days for adding trainings
@@ -236,11 +265,26 @@ export class CalendarComponent implements OnInit {
     }
   }
 
+  // Select week day
+  selectWeekDay(day: WeekDay): void {
+    this.selectedDate = day.date;
+    this.generateWeekView();
+  }
+
   // Change view mode
   setViewMode(mode: 'month' | 'week' | 'day'): void {
     this.viewMode = mode;
     if (mode === 'week') {
+      // Set selectedDate to current date if not set
+      if (!this.selectedDate) {
+        this.selectedDate = new Date();
+      }
       this.generateWeekView();
+    } else if (mode === 'day') {
+      // Set selectedDate to current date if not set
+      if (!this.selectedDate) {
+        this.selectedDate = new Date();
+      }
     }
   }
 
@@ -479,18 +523,64 @@ export class CalendarComponent implements OnInit {
     }
   }
 
+  // Get training height based on duration (each 30min slot = 40px)
+  getTrainingHeight(duration: number): number {
+    const slotHeight = 40; // Height of each 30-minute slot
+    const slots = Math.ceil(duration / 30); // Number of 30-minute slots
+    return slots * slotHeight - 2; // Subtract 2px for margins
+  }
+
+  // Get training top position based on start time
+  getTrainingTopPosition(startTime: string): number {
+    const startMinutes = this.timeToMinutes(startTime);
+    const slotHeight = 40; // Height of each 30-minute slot
+    
+    // Calculate position relative to first time slot (00:00 = 0 minutes)
+    const firstSlotMinutes = 0; // 00:00 in minutes
+    const relativeMinutes = startMinutes - firstSlotMinutes;
+    const totalPosition = (relativeMinutes / 30) * slotHeight;
+    
+    return totalPosition;
+  }
+
+  // Get training left position based on day index
+  getTrainingLeftPosition(dayIndex: number): number {
+    // Calculate position as percentage of container width
+    const timeColumnWidthPercent = 100 / 8; // Time column is 1/8 of total width
+    const dayWidthPercent = 100 / 8; // Each day is 1/8 of total width
+    const leftPercent = timeColumnWidthPercent + (dayIndex * dayWidthPercent);
+    // Shift left by a few pixels (subtract 1% to move left more)
+    return leftPercent - 1;
+  }
+
+  // Get all trainings for a specific day
+  getTrainingsForDay(date: Date): Training[] {
+    const dateStr = this.formatDate(date);
+    return this.trainings.filter(training => training.date === dateStr);
+  }
+
   // Get trainings for time slot in week/day view
   getTrainingsForTimeSlot(date: Date, timeSlot: string): Training[] {
     const dateStr = this.formatDate(date);
-    return this.trainings.filter(training => {
+    const result = this.trainings.filter(training => {
       if (training.date !== dateStr) return false;
 
       const slotMinutes = this.timeToMinutes(timeSlot);
       const trainingStart = this.timeToMinutes(training.startTime);
       const trainingEnd = trainingStart + training.duration;
 
-      return slotMinutes >= trainingStart && slotMinutes < trainingEnd;
+      // Show training in the time slot that contains its start time
+      // But only show it once (in the first slot it appears in)
+      const matches = slotMinutes <= trainingStart && trainingStart < slotMinutes + 30;
+      
+      if (matches) {
+        console.log(`Training ${training.clientName} at ${training.startTime} matches slot ${timeSlot}`);
+      }
+      
+      return matches;
     });
+    
+    return result;
   }
 
   // Filters
@@ -595,6 +685,8 @@ export class CalendarComponent implements OnInit {
       const response = await this.trainingSessionService.getAllSessions().toPromise();
       // Convert TrainingSession to Training for compatibility
       this.trainings = (response || []).map(session => this.convertSessionToTraining(session));
+      
+      console.log('Loaded trainings:', this.trainings);
       this.generateCalendar();
       this.generateWeekView();
     } catch (error) {
@@ -602,6 +694,7 @@ export class CalendarComponent implements OnInit {
       console.error('Error loading trainings:', error);
     }
   }
+
 
   async saveTrainingToAPI(training: Training): Promise<void> {
     try {

@@ -19,15 +19,17 @@
   <!-- Header z nawigacją -->
   <div class="calendar-header">
     <div class="calendar-navigation">
-      <button class="nav-btn" (click)="previousMonth()">
+      <button class="nav-btn" (click)="viewMode === 'month' ? previousMonth() : viewMode === 'week' ? previousWeek() : previousDay()">
         <span>⬅️</span>
       </button>
 
       <h2 class="calendar-title">
-        {{ monthNames[currentDate.getMonth()] }} {{ currentDate.getFullYear() }}
+        <span *ngIf="viewMode === 'month'">{{ monthNames[currentDate.getMonth()] }} {{ currentDate.getFullYear() }}</span>
+        <span *ngIf="viewMode === 'week'">{{ getWeekRange() }}</span>
+        <span *ngIf="viewMode === 'day'">{{ selectedDate ? selectedDate.toLocaleDateString('pl-PL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'Wybierz dzień' }}</span>
       </h2>
 
-      <button class="nav-btn" (click)="nextMonth()">
+      <button class="nav-btn" (click)="viewMode === 'month' ? nextMonth() : viewMode === 'week' ? nextWeek() : nextDay()">
         <span>➡️</span>
       </button>
     </div>
@@ -111,24 +113,29 @@
   <div class="week-view" *ngIf="viewMode === 'week'">
     <div class="week-header">
       <div class="week-time-header">Czas</div>
-      <div *ngFor="let day of weekDays" [class]="'week-day-header ' + (day.isToday ? 'today' : '')">
+      <div *ngFor="let day of weekDays" [class]="'week-day-header ' + (day.isToday ? 'today' : '')" (click)="selectWeekDay(day)">
         <div>{{ day.dayName }}</div>
         <div>{{ day.dayNumber }}</div>
       </div>
     </div>
 
     <div class="week-content">
-      <div class="time-slots-grid">
-        <div *ngFor="let timeSlot of timeSlots" class="time-slot-row">
-          <div class="time-label">{{ timeSlot }}</div>
-          <div *ngFor="let day of weekDays" class="week-day-slot"
-               (click)="!isPastDate(day.date) && openAddModal(day.date)">
-            <div *ngFor="let training of getTrainingsForTimeSlot(day.date, timeSlot)"
-                 [class]="'week-training ' + getStatusClass(training.status)"
-                 (click)="openTrainingDetails(training); $event.stopPropagation()">
-              {{ training.clientName }} ({{ formatDuration(training.duration) }})
-            </div>
-          </div>
+      <div *ngFor="let timeSlot of timeSlots" class="time-slot-row">
+        <div class="time-label">{{ timeSlot }}</div>
+        <div *ngFor="let day of weekDays; let dayIndex = index" class="week-day-slot"
+             (click)="!isPastDate(day.date) && openAddModal(day.date)">
+        </div>
+      </div>
+      
+      <!-- Training bars positioned absolutely -->
+      <div *ngFor="let day of weekDays; let dayIndex = index">
+        <div *ngFor="let training of getTrainingsForDay(day.date)"
+             [class]="'week-training ' + getStatusClass(training.status)"
+             [style.height.px]="getTrainingHeight(training.duration)"
+             [style.top.px]="getTrainingTopPosition(training.startTime)"
+             [style.left.%]="getTrainingLeftPosition(dayIndex)"
+             (click)="openTrainingDetails(training); $event.stopPropagation()">
+          {{ training.clientName }} ({{ formatDuration(training.duration) }})
         </div>
       </div>
     </div>
