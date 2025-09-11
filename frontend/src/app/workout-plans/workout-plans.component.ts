@@ -67,7 +67,6 @@ export class WorkoutPlansComponent implements OnInit {
   difficultyFilter = '';
   muscleGroupFilter = '';
   equipmentFilter = '';
-  showOnlyMyPlans = false;
 
   // Modal states
   showCreatePlanModal = false;
@@ -190,10 +189,8 @@ export class WorkoutPlansComponent implements OnInit {
         plan.targetMuscleGroups.includes(this.muscleGroupFilter);
       const matchesEquipment = !this.equipmentFilter ||
         plan.equipment.includes(this.equipmentFilter);
-      const matchesOwnership = !this.showOnlyMyPlans || plan.createdBy === 'current_user'; // current user
-
       return matchesSearch && matchesCategory && matchesDifficulty &&
-        matchesMuscleGroup && matchesEquipment && matchesOwnership;
+        matchesMuscleGroup && matchesEquipment;
     });
   }
 
